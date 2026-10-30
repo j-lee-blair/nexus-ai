@@ -8,9 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "record-fixtures": "tsx --env-file-if-exists=.env.local scripts/record-watchmode-fixtures.ts"
   },
   "dependencies": {
+    "@upstash/redis": "1.39.0",
     "next": "16.4.2",
     "react": "19.2.0",
     "react-dom": "19.2.0"
@@ -21,6 +23,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
+    "tsx": "4.23.15",
     "typescript": "^5",
     "vitest": "^4.1.12"
   }
