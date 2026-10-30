@@ -130,9 +130,9 @@ opens up and down from it in about 0.25s. It should feel like "Nexus has seen th
 
 ## Open questions to resolve before building
 
-- **Data provider:** Which source provides movie metadata and Swedish streaming availability, and
-  do its terms allow use in a public app (including a public open-source repo)? This is the single
-  biggest risk to the project and should be settled first.
+- ~~**Data provider**~~ Decided: Watchmode for availability ([ADR 0001](docs/adr/0001-watchmode-as-data-provider.md)),
+  with credit safeguards ([ADR 0002](docs/adr/0002-api-credit-safeguards.md)) and posters from TMDB
+  ([ADR 0003](docs/adr/0003-posters-from-tmdb.md)).
 - **"Free with ads" category:** Swedish services such as SVT Play offer movies for free. If the data
   provider distinguishes this, should it be a fourth group alongside Included / Rent / Buy?
   (The design prototypes assume yes, shown as a "Free" group.)
@@ -169,6 +169,8 @@ and recorded here and in an Architecture Decision Record (ADR).
   fallbacks, placeholders or "sample" data shown to real users.
 - **Do not scrape streaming services** or use a data source whose terms haven't been checked.
 - **Do not commit secrets** such as API keys or `.env` files.
+- **Do not call Watchmode live** during development or tests. Use the recorded fixtures and the
+  guarded gateway described in ADR 0002.
 - **Do not skip, weaken or delete tests** to make checks pass.
 - **Do not push to `main`, force-push, or deploy** without the maintainer's go-ahead.
 - **Do not make major decisions silently.** Explain the trade-offs and ask.
