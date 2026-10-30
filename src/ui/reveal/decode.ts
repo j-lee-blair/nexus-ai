@@ -1,6 +1,6 @@
 import { DATA_GLYPHS, scrambledText } from "./motion";
 
-const MS_PER_CHARACTER = 22;
+const MS_PER_CHARACTER = 20;
 const FRAME_INTERVAL_MS = 45;
 
 function randomGlyph(): string {

@@ -1,9 +1,10 @@
 // The Converge reveal, drawn on a canvas laid over the answer (CLAUDE.md "Experience design").
 //
 // Discovery: while Nexus fetches a fresh answer, streams of light pour in from the screen edges
-// and meet at the nexus point. When the answer arrives, one stream per real offer fans out from
-// the nexus point to that offer's row. Snap ("Ignite"): for a cached answer, a gradient line
-// flashes across the nexus point and the answer opens up and down from it.
+// and meet at the nexus point in the centre of the screen. When the answer arrives, one stream
+// per real offer shoots out from the nexus point to that offer's row. Snap ("Ignite"): for a
+// cached answer, a gradient line flashes across the summary line and the answer opens up and
+// down from it.
 //
 // The canvas is decoration only. The answer itself is ordinary HTML underneath.
 
@@ -36,13 +37,13 @@ interface Stream {
   arrived: boolean;
 }
 
-const INCOMING_DURATION_MS = 700;
-const NEW_STREAM_EVERY_MS = 110;
-const OUTGOING_DURATION_MS = 460;
-const OUTGOING_STAGGER_MS = 45;
-const MAX_OUTGOING_STAGGER_MS = 300;
-const NEXUS_MOVE_MS = 160;
-const FADE_OUT_MS = 220;
+const INCOMING_DURATION_MS = 630;
+const NEW_STREAM_EVERY_MS = 100;
+const OUTGOING_DURATION_MS = 415;
+const OUTGOING_STAGGER_MS = 40;
+const MAX_OUTGOING_STAGGER_MS = 270;
+const NEXUS_MOVE_MS = 145;
+const FADE_OUT_MS = 200;
 const TAIL_SEGMENTS = 14;
 const CYAN = "92, 242, 255";
 const MAGENTA = "255, 92, 207";
@@ -175,7 +176,7 @@ export function startDiscovery(canvas: HTMLCanvasElement, nexus: Point): Discove
       end: currentNexus,
       hue: randomBetween(170, 330),
       startTime: now,
-      durationMs: randomBetween(INCOMING_DURATION_MS - 150, INCOMING_DURATION_MS + 150),
+      durationMs: randomBetween(INCOMING_DURATION_MS - 135, INCOMING_DURATION_MS + 135),
       tailLength: 0.35,
       target: null,
       arrived: false,

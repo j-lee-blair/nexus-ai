@@ -6,7 +6,7 @@ import { decodeText } from "./decode";
 import { prefersReducedMotion, type Point } from "./motion";
 
 /** Discovery runs at least this long, so a fast answer doesn't make the screen flicker. */
-const MIN_DISCOVERY_MS = 500;
+const MIN_DISCOVERY_MS = 450;
 const REDUCED_MOTION_FADE_MS = 150;
 
 export type RevealStatus = "loading" | "ready" | "failed";
@@ -20,16 +20,16 @@ interface RevealOptions {
   answerRef: RefObject<HTMLElement | null>;
 }
 
-/** Where the streams gather while loading: centred, a little above the middle of the screen. */
-function loadingNexus(): Point {
-  return { x: window.innerWidth / 2, y: Math.min(window.innerHeight * 0.4, 320) };
+/** Where the Discovery streams meet, and later shoot out from: the centre of the screen. */
+function screenCentre(): Point {
+  return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 }
 
-/** Where the streams meet once the answer is on screen: the centre of its summary line. */
-function answerNexus(answer: HTMLElement): Point {
+/** Where the Ignite line flashes: across the centre of the answer's summary line. */
+function summaryCentre(answer: HTMLElement): Point {
   const summary = answer.querySelector('[data-reveal="heading"]');
   if (summary === null) {
-    return loadingNexus();
+    return screenCentre();
   }
   const box = summary.getBoundingClientRect();
   return { x: window.innerWidth / 2, y: box.top + box.height / 2 };
@@ -72,7 +72,7 @@ export function useConvergeReveal({ status, cached, canvasRef, answerRef }: Reve
     }
 
     loadStartRef.current = performance.now();
-    const discovery = startDiscovery(canvas, loadingNexus());
+    const discovery = startDiscovery(canvas, screenCentre());
     discoveryRef.current = discovery;
 
     return () => discovery.stop();
@@ -128,7 +128,7 @@ export function useConvergeReveal({ status, cached, canvasRef, answerRef }: Reve
 
     if (cached) {
       discoveryRef.current?.stop();
-      const stopIgnite = playIgnite(canvas, answerNexus(answer), answer, finish);
+      const stopIgnite = playIgnite(canvas, summaryCentre(answer), answer, finish);
       cleanups.push(stopIgnite);
       return finish;
     }
@@ -152,7 +152,7 @@ export function useConvergeReveal({ status, cached, canvasRef, answerRef }: Reve
       const targets: StreamTarget[] = rows.map((row) => toStreamTarget(row, decodes));
 
       const footer = hiddenElements.filter((element) => element.dataset.reveal === "footer");
-      discovery.resolve(answerNexus(answer), targets, () => {
+      discovery.resolve(screenCentre(), targets, () => {
         footer.forEach(showWithFade);
         finish();
       });
