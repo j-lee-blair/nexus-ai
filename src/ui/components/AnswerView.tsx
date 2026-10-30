@@ -20,8 +20,9 @@ interface AnswerViewProps {
 
 /**
  * The answer: where the movie is available in Sweden, as plain, accessible HTML.
- * Shows exactly what the data provider returned. The Converge reveal (F8) is laid over this
- * markup and must never change its content or order.
+ * Shows exactly what the data provider returned. The Converge reveal (src/ui/reveal) is laid
+ * over this markup and never changes its content or order. It finds its targets through
+ * data-reveal (what to hide and show) and data-decode (text that decodes from glyphs).
  */
 export function AnswerView({ availability, checkedAt, now }: AnswerViewProps) {
   const movie = availability.movie;
@@ -47,19 +48,21 @@ export function AnswerView({ availability, checkedAt, now }: AnswerViewProps) {
         </div>
       </header>
 
-      <p className={styles.summary} data-reveal="summary">
+      <p className={styles.summary} data-reveal="heading" data-decode>
         {summary}
       </p>
 
       {availability.groups.length === 0 && (
-        <p className={styles.empty}>You can’t stream, rent or buy this movie in Sweden right now.</p>
+        <p className={styles.empty} data-reveal="heading">
+          You can’t stream, rent or buy this movie in Sweden right now.
+        </p>
       )}
 
       {availability.groups.map((group) => (
         <OfferGroupSection key={group.type} group={group} />
       ))}
 
-      <footer className={styles.footer}>
+      <footer className={styles.footer} data-reveal="footer">
         {formatCheckedAt(checkedAt, now)} · Streaming data from{" "}
         <a href="https://www.watchmode.com/" target="_blank" rel="noopener noreferrer">
           Watchmode
@@ -74,8 +77,8 @@ function OfferGroupSection({ group }: { group: OfferGroup }) {
   const headingId = `group-${group.type}`;
 
   return (
-    <section className={styles.group} aria-labelledby={headingId} data-reveal="group">
-      <h2 id={headingId} className={styles.groupTitle}>
+    <section className={styles.group} aria-labelledby={headingId}>
+      <h2 id={headingId} className={styles.groupTitle} data-reveal="heading" data-decode>
         {label}
       </h2>
       <ul className={styles.offers}>
@@ -102,11 +105,20 @@ function OfferRow({ offer, group, isCheapest }: OfferRowProps) {
 
   const rowContent = (
     <>
-      <span className={styles.chip} style={{ "--hue": hue } as React.CSSProperties} aria-hidden="true">
+      <span
+        className={styles.chip}
+        style={{ "--hue": hue } as React.CSSProperties}
+        data-stream-hue={hue}
+        aria-hidden="true"
+      >
         {initials(offer.provider.name)}
       </span>
-      <span className={styles.providerName}>{offer.provider.name}</span>
-      <span className={styles.price}>{priceLabel}</span>
+      <span className={styles.providerName} data-decode>
+        {offer.provider.name}
+      </span>
+      <span className={styles.price} data-decode>
+        {priceLabel}
+      </span>
       {isPaid && (
         <span className={styles.meta}>
           <span
