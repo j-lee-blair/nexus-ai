@@ -31,16 +31,12 @@
   min-height: 200px;
 }
 
-.loading,
-.problem {
+.loading {
   margin: 0;
   padding: 24px 4px;
   color: var(--muted);
 }
 
-.problem {
-  color: var(--fg);
-}
 
 .effects {
   position: fixed;
