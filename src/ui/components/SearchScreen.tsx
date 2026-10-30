@@ -2,22 +2,25 @@
 
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
-import { MIN_QUERY_LENGTH } from "@/contracts/api";
+import { MIN_QUERY_LENGTH, type ErrorCode } from "@/contracts/api";
 import type { Movie } from "@/domain/types";
 import { searchMovies } from "@/ui/api-client";
 import { rememberSelectedMovie } from "@/ui/selected-movie";
 import { Poster } from "./Poster";
+import { Problem } from "./Problem";
 import { Wordmark } from "./Wordmark";
 import styles from "./SearchScreen.module.css";
 
 /** Wait this long after the last keystroke before searching, so typing doesn't spend lookups. */
 const TYPING_PAUSE_MS = 350;
+/** After this long, the status line admits the search is slow. */
+const SLOW_AFTER_MS = 4000;
 
 type SearchState =
   | { status: "idle" }
-  | { status: "loading" }
+  | { status: "loading"; isSlow: boolean }
   | { status: "done"; query: string; results: Movie[] }
-  | { status: "failed"; message: string };
+  | { status: "failed"; code: ErrorCode; retryAfterSeconds?: number };
 
 interface SearchScreenProps {
   /** The query from the address bar, so Back from a movie returns to the same results. */
@@ -27,6 +30,8 @@ interface SearchScreenProps {
 export function SearchScreen({ initialQuery }: SearchScreenProps) {
   const [query, setQuery] = useState(initialQuery);
   const [state, setState] = useState<SearchState>({ status: "idle" });
+  // Changing this runs the same search again ("Try again").
+  const [attempt, setAttempt] = useState(0);
   const hintId = useId();
 
   const trimmedQuery = query.trim();
@@ -38,9 +43,11 @@ export function SearchScreen({ initialQuery }: SearchScreenProps) {
     }
 
     const controller = new AbortController();
+    let slowTimer = 0;
     const timer = window.setTimeout(async () => {
-      setState({ status: "loading" });
+      setState({ status: "loading", isSlow: false });
       rememberQueryInAddressBar(trimmedQuery);
+      slowTimer = window.setTimeout(() => setState({ status: "loading", isSlow: true }), SLOW_AFTER_MS);
 
       let response;
       try {
@@ -49,9 +56,14 @@ export function SearchScreen({ initialQuery }: SearchScreenProps) {
         // Cancelled because the user typed again; the next search takes over.
         return;
       }
+      window.clearTimeout(slowTimer);
 
       if (!response.ok) {
-        setState({ status: "failed", message: response.error.message });
+        setState({
+          status: "failed",
+          code: response.error.code,
+          retryAfterSeconds: response.error.retryAfterSeconds,
+        });
         return;
       }
       setState({ status: "done", query: response.data.query, results: response.data.results });
@@ -59,9 +71,14 @@ export function SearchScreen({ initialQuery }: SearchScreenProps) {
 
     return () => {
       window.clearTimeout(timer);
+      window.clearTimeout(slowTimer);
       controller.abort();
     };
-  }, [trimmedQuery, isLongEnough]);
+  }, [trimmedQuery, isLongEnough, attempt]);
+
+  function tryAgain() {
+    setAttempt(attempt + 1);
+  }
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const nextQuery = event.target.value;
@@ -104,6 +121,10 @@ export function SearchScreen({ initialQuery }: SearchScreenProps) {
         </p>
       </form>
 
+      {state.status === "failed" && (
+        <Problem code={state.code} retryAfterSeconds={state.retryAfterSeconds} onRetry={tryAgain} />
+      )}
+
       <SearchResults state={state} query={trimmedQuery} />
     </main>
   );
@@ -132,10 +153,12 @@ function SearchHint({ query, isLongEnough, state }: SearchHintProps) {
 
   if (query.length > 0 && !isLongEnough) {
     text = `Type at least ${MIN_QUERY_LENGTH} letters.`;
+  } else if (state.status === "loading" && state.isSlow) {
+    text = "Still searching. This is taking longer than usual.";
   } else if (state.status === "loading") {
     text = "Searching…";
   } else if (state.status === "failed") {
-    text = state.message;
+    text = "The search didn't work.";
   } else if (state.status === "done") {
     const count = state.results.length;
     if (count === 0) {
