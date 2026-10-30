@@ -5,10 +5,12 @@ import { DataSourceError, type SourceResult } from "@/server/data-source";
 const NO_STORE = { "Cache-Control": "no-store" };
 
 export function failure(code: ErrorCode, message: string, retryAfterSeconds?: number) {
-  const body: ApiFailure = {
-    ok: false,
-    error: retryAfterSeconds === undefined ? { code, message } : { code, message, retryAfterSeconds },
-  };
+  const error: ApiFailure["error"] = { code, message };
+  if (retryAfterSeconds !== undefined) {
+    error.retryAfterSeconds = retryAfterSeconds;
+  }
+
+  const body: ApiFailure = { ok: false, error };
   return NextResponse.json(body, { status: ERROR_STATUS[code], headers: NO_STORE });
 }
 
