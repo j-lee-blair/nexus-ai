@@ -12,6 +12,7 @@
     "record-fixtures": "tsx --env-file-if-exists=.env.local scripts/record-watchmode-fixtures.ts"
   },
   "dependencies": {
+    "@faker-js/faker": "10.6.0",
     "@upstash/redis": "1.39.0",
     "next": "16.4.2",
     "react": "19.2.0",
