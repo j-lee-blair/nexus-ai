@@ -42,8 +42,8 @@ speaks Nexus's own types.
 
 ## Order
 
-1. **F0** first, because everything else leans on it. The technology stack must be chosen before
-   F0 is written in code.
+1. **F0** first, because everything else leans on it. Stack: Next.js + Vercel + Upstash
+   ([ADR 0004](adr/0004-nextjs-vercel-upstash.md)).
 2. **F1 → F2 → F3**: the safe plumbing, so no later step can spend credits by accident.
 3. **F4, F5** (server) and **F6, F7** (browser) can then be built in either order, because the UI
    runs against the mock API until the services are ready.

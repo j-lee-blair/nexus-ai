@@ -138,12 +138,12 @@ opens up and down from it in about 0.25s. It should feel like "Nexus has seen th
   (The design prototypes assume yes, shown as a "Free" group.)
 - **Links:** Can we link directly to the movie on each service (deep links), or only to the service?
 - **App language:** Swedish, English, or both?
-- **Platform:** web app, mobile app, or both? (To be decided with the technology stack.)
+- ~~**Platform**~~ Decided: web app ([ADR 0004](docs/adr/0004-nextjs-vercel-upstash.md)).
 
 ## Technology stack
 
-**Not decided yet.** It will be chosen together with the maintainer, with trade-offs explained,
-and recorded here and in an Architecture Decision Record (ADR).
+Next.js with TypeScript, hosted on Vercel, with Upstash Redis for the cache and the credit counter.
+A web app; no native app for the MVP. See [ADR 0004](docs/adr/0004-nextjs-vercel-upstash.md).
 
 ## Working principles
 
