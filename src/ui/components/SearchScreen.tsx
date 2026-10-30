@@ -5,6 +5,7 @@ import { useEffect, useId, useState } from "react";
 import { MIN_QUERY_LENGTH } from "@/contracts/api";
 import type { Movie } from "@/domain/types";
 import { searchMovies } from "@/ui/api-client";
+import { rememberSelectedMovie } from "@/ui/selected-movie";
 import { Poster } from "./Poster";
 import { Wordmark } from "./Wordmark";
 import styles from "./SearchScreen.module.css";
@@ -186,7 +187,7 @@ function ResultLink({ movie, query }: { movie: Movie; query: string }) {
   }
 
   return (
-    <Link href={href} className={styles.result}>
+    <Link href={href} className={styles.result} onClick={() => rememberSelectedMovie(movie)}>
       <Poster movie={movie} size="small" />
       <span className={styles.resultText}>
         <span className={styles.resultTitle}>{movie.title}</span>

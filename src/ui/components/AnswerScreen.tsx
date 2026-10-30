@@ -6,7 +6,8 @@ import type { AvailabilityData } from "@/contracts/api";
 import { getAvailability } from "@/ui/api-client";
 import { availabilitySummary } from "@/ui/format";
 import { useConvergeReveal } from "@/ui/reveal/useConvergeReveal";
-import { AnswerView } from "./AnswerView";
+import { useSelectedMovie } from "@/ui/selected-movie";
+import { AnswerView, MovieHeader } from "./AnswerView";
 import { Wordmark } from "./Wordmark";
 import styles from "./AnswerScreen.module.css";
 
@@ -23,6 +24,7 @@ interface AnswerScreenProps {
 
 export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
   const [state, setState] = useState<AnswerState>({ status: "loading" });
+  const selectedMovie = useSelectedMovie(movieId);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const answerRef = useRef<HTMLDivElement>(null);
 
@@ -61,6 +63,12 @@ export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
     return () => controller.abort();
   }, [movieId]);
 
+  // The answer's own movie data wins once it arrives; until then, the movie picked in search.
+  let movie = selectedMovie;
+  if (state.status === "ready") {
+    movie = state.availability.movie;
+  }
+
   let backHref = "/";
   let backLabel = "New search";
   if (query !== "") {
@@ -76,6 +84,8 @@ export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
           ← {backLabel}
         </Link>
       </header>
+
+      {movie !== null && <MovieHeader movie={movie} />}
 
       <div ref={answerRef} aria-busy={isBusy} className={styles.region}>
         <AnswerContent state={state} />
