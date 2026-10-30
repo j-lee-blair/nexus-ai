@@ -7,7 +7,7 @@ costs, and jump straight to it. Built with agent-led development (see `CLAUDE.md
 
 ```bash
 npm ci
-cp .env.example .env.local   # uses made-up mock data; no API keys needed
+cp .env.example .env.local   # answers from recorded Watchmode fixtures; no API keys needed
 npm run dev                  # http://localhost:3000
 ```
 
@@ -30,7 +30,7 @@ Checks: `npm test`, `npm run lint`, `npm run typecheck`, `npm run build`.
 
 - `src/domain/`: Nexus's own types and rules (e.g. grouping and sorting offers)
 - `src/contracts/`: the browser–server API contract ([docs/api.md](docs/api.md))
-- `src/server/data-source/`: where answers come from (mock today, Watchmode next)
+- `src/server/data-source/`: where answers come from: Watchmode (translated into Nexus types) or a dev-only mock
 - `src/server/watchmode/`: the only code that talks to Watchmode: credit caps, live and fixture gateways
 - `src/server/cache.ts`, `src/server/store/`: the read-through cache on Upstash Redis (memory locally)
 - `src/app/api/`: the two API endpoints

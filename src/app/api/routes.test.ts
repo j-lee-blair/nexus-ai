@@ -87,7 +87,8 @@ describe("API routes with the mock data source", () => {
     expect(expectFailure(body).code).toBe("not_found");
   });
 
-  it("returns 503 provider_unavailable when no data source is configured", async () => {
+  it("returns 503 provider_unavailable when Watchmode has no answer for the request", async () => {
+    // Without the mock, development uses recorded Watchmode fixtures; "ferry" has none.
     vi.stubEnv("NEXUS_DATA_SOURCE", "");
 
     const { status, body } = await callSearch("ferry");

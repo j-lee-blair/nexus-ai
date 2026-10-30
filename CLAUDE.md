@@ -136,7 +136,8 @@ opens up and down from it in about 0.25s. It should feel like "Nexus has seen th
 - **"Free with ads" category:** Swedish services such as SVT Play offer movies for free. If the data
   provider distinguishes this, should it be a fourth group alongside Included / Rent / Buy?
   (The design prototypes assume yes, shown as a "Free" group.)
-- **Links:** Can we link directly to the movie on each service (deep links), or only to the service?
+- ~~**Links**~~ Decided: Watchmode's free plan gives web links straight to the movie on each
+  service's site; app deep links are paid-only, so the MVP uses web links (ADR 0001).
 - **App language:** Swedish, English, or both?
 - ~~**Platform**~~ Decided: web app ([ADR 0004](docs/adr/0004-nextjs-vercel-upstash.md)).
 
