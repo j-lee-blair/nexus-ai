@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { Availability, Offer } from "@/domain/types";
-import { AnswerView } from "./AnswerView";
+import { AnswerView, MovieHeader } from "./AnswerView";
 
 const movie = {
   id: "1",
@@ -77,5 +77,16 @@ describe("AnswerView", () => {
 
     expect(html).toContain("Not streaming in Sweden");
     expect(html).toContain("You can’t stream, rent or buy this movie in Sweden right now.");
+  });
+});
+
+describe("MovieHeader", () => {
+  it("shows the title and year, separate from the answer", () => {
+    const html = renderToStaticMarkup(<MovieHeader movie={movie} />);
+
+    expect(html).toContain("<h1");
+    expect(html).toContain("Test Movie");
+    expect(html).toContain("2020");
+    expect(html).not.toContain("data-reveal");
   });
 });

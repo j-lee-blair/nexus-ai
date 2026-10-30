@@ -1,4 +1,4 @@
-import type { Availability, Offer, OfferGroup } from "@/domain/types";
+import type { Availability, Movie, Offer, OfferGroup } from "@/domain/types";
 import {
   availabilitySummary,
   formatCheckedAt,
@@ -19,15 +19,10 @@ interface AnswerViewProps {
 }
 
 /**
- * The answer: where the movie is available in Sweden, as plain, accessible HTML.
- * Shows exactly what the data provider returned. The Converge reveal (src/ui/reveal) is laid
- * over this markup and never changes its content or order. It finds its targets through
- * data-reveal (what to hide and show) and data-decode (text that decodes from glyphs).
+ * The movie's poster, title and year. Static: the visitor already picked this movie, so it is
+ * shown straight away and never part of the reveal.
  */
-export function AnswerView({ availability, checkedAt, now }: AnswerViewProps) {
-  const movie = availability.movie;
-  const summary = availabilitySummary(availability.groups);
-
+export function MovieHeader({ movie }: { movie: Movie }) {
   const details: string[] = [];
   if (movie.year !== null) {
     details.push(String(movie.year));
@@ -37,16 +32,27 @@ export function AnswerView({ availability, checkedAt, now }: AnswerViewProps) {
   }
 
   return (
-    <article className={styles.answer} aria-labelledby="answer-title">
-      <header className={styles.head}>
-        <Poster movie={movie} size="large" />
-        <div>
-          <h1 id="answer-title" className={styles.title}>
-            {movie.title}
-          </h1>
-          <p className={styles.details}>{details.join(" · ")}</p>
-        </div>
-      </header>
+    <header className={styles.head}>
+      <Poster movie={movie} size="large" />
+      <div>
+        <h1 className={styles.title}>{movie.title}</h1>
+        <p className={styles.details}>{details.join(" · ")}</p>
+      </div>
+    </header>
+  );
+}
+
+/**
+ * The answer: where the movie is available in Sweden, as plain, accessible HTML.
+ * Shows exactly what the data provider returned. The Converge reveal (src/ui/reveal) is laid
+ * over this markup and never changes its content or order. It finds its targets through
+ * data-reveal (what to hide and show) and data-decode (text that decodes from glyphs).
+ */
+export function AnswerView({ availability, checkedAt, now }: AnswerViewProps) {
+  const summary = availabilitySummary(availability.groups);
+
+  return (
+    <section className={styles.answer} aria-label="Where to watch in Sweden">
 
       <p className={styles.summary} data-reveal="heading" data-decode>
         {summary}
@@ -68,7 +74,7 @@ export function AnswerView({ availability, checkedAt, now }: AnswerViewProps) {
           Watchmode
         </a>
       </footer>
-    </article>
+    </section>
   );
 }
 
