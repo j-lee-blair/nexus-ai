@@ -35,6 +35,8 @@ interface Stream {
   tailLength: number;
   target: StreamTarget | null;
   arrived: boolean;
+  /** Set when the answer arrives while this stream is still flying in, so it can hurry. */
+  catchUp: { startTime: number; fromProgress: number } | null;
 }
 
 const INCOMING_DURATION_MS = 630;
@@ -44,6 +46,8 @@ const OUTGOING_STAGGER_MS = 40;
 const MAX_OUTGOING_STAGGER_MS = 270;
 const NEXUS_MOVE_MS = 145;
 const FADE_OUT_MS = 200;
+/** When the answer arrives, streams still flying in reach the nexus point within this time. */
+const CATCH_UP_MS = 100;
 /** How long the nexus glow takes to die away once the streams start flying out. */
 const GLOW_FADE_MS = 180;
 const TAIL_SEGMENTS = 14;
@@ -153,6 +157,16 @@ function drawNexus(
   context.globalAlpha = 1;
 }
 
+/** How far along its path a stream is (0–1), including any catch-up after the answer arrived. */
+function progressOf(stream: Stream, now: number): number {
+  if (stream.catchUp === null) {
+    return easeOut((now - stream.startTime) / stream.durationMs);
+  }
+  const catchUpProgress = easeOut((now - stream.catchUp.startTime) / CATCH_UP_MS);
+  const remaining = 1 - stream.catchUp.fromProgress;
+  return stream.catchUp.fromProgress + remaining * catchUpProgress;
+}
+
 /** Starts the Discovery streams. They keep gathering at `nexus` until `resolve` is called. */
 export function startDiscovery(canvas: HTMLCanvasElement, nexus: Point): Discovery {
   const surface = prepareCanvas(canvas);
@@ -199,6 +213,7 @@ export function startDiscovery(canvas: HTMLCanvasElement, nexus: Point): Discove
       tailLength: 0.35,
       target: null,
       arrived: false,
+      catchUp: null,
     });
   }
 
@@ -226,7 +241,7 @@ export function startDiscovery(canvas: HTMLCanvasElement, nexus: Point): Discove
 
     let streamsStillMoving = 0;
     for (const stream of streams) {
-      const progress = easeOut((now - stream.startTime) / stream.durationMs);
+      const progress = progressOf(stream, now);
       if (progress <= 0) {
         streamsStillMoving++;
         continue;
@@ -271,6 +286,13 @@ export function startDiscovery(canvas: HTMLCanvasElement, nexus: Point): Discove
   function resolve(answerNexus: Point, targets: StreamTarget[], onDone: () => void) {
     const now = performance.now();
     isGathering = false;
+
+    // Streams still flying in hurry to the nexus point, so none arrive after the rows appear.
+    for (const stream of streams) {
+      if (!stream.arrived) {
+        stream.catchUp = { startTime: now, fromProgress: progressOf(stream, now) };
+      }
+    }
     flyOutStart = now + NEXUS_MOVE_MS / 2;
     nexusMoveFrom = currentNexus;
     nexusMoveTo = answerNexus;
@@ -288,6 +310,7 @@ export function startDiscovery(canvas: HTMLCanvasElement, nexus: Point): Discove
         tailLength: 0.25,
         target,
         arrived: false,
+        catchUp: null,
       });
     });
 
