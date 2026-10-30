@@ -51,33 +51,47 @@ describe("API routes with the mock data source", () => {
     expect(expectFailure(body).code).toBe("invalid_query");
   });
 
-  it("finds movies by original title and reports cached on repeat", async () => {
-    const first = await callSearch("cinnamon");
+  it("returns the same generated movies for the same search, and reports cached on repeat", async () => {
+    const first = await callSearch("matrix");
     const firstBody = expectSuccess(first.body);
-    const titles = firstBody.data.results.map((movie) => movie.title);
+    const firstTitles = firstBody.data.results.map((movie) => movie.title);
 
-    expect(titles).toEqual(["Kanelbullar och krig"]);
+    expect(firstTitles[0]).toBe("The Matrix");
     expect(firstBody.cached).toBe(false);
 
-    const repeat = await callSearch("Cinnamon");
+    const repeat = await callSearch("Matrix");
     const repeatBody = expectSuccess(repeat.body);
+    const repeatTitles = repeatBody.data.results.map((movie) => movie.title);
 
+    expect(repeatTitles).toEqual(firstTitles);
     expect(repeatBody.cached).toBe(true);
   });
 
-  it("returns an empty list, not an error, when nothing matches", async () => {
-    const { status, body } = await callSearch("zzzzzz");
+  it("returns an empty list, not an error, when searching for 404", async () => {
+    const { status, body } = await callSearch("404");
 
     expect(status).toBe(200);
     expect(expectSuccess(body).data.results).toEqual([]);
   });
 
-  it("returns grouped availability for a known movie", async () => {
-    const { body } = await callAvailability("mock-1");
-    const data: AvailabilityData = expectSuccess(body).data;
-    const groupTypes = data.groups.map((group) => group.type);
+  it("fails like a server bug when searching for 500", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    expect(groupTypes).toEqual(["subscription", "rent", "buy"]);
+    const { status, body } = await callSearch("500");
+
+    expect(status).toBe(503);
+    expect(expectFailure(body).code).toBe("provider_unavailable");
+    consoleError.mockRestore();
+  });
+
+  it("returns grouped availability for a movie from the search results", async () => {
+    const search = await callSearch("matrix");
+    const firstMovie = expectSuccess(search.body).data.results[0];
+
+    const { body } = await callAvailability(firstMovie.id);
+    const data: AvailabilityData = expectSuccess(body).data;
+
+    expect(data.movie).toEqual(firstMovie);
   });
 
   it("returns 404 not_found for an unknown movie", async () => {
