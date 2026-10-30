@@ -1,0 +1,45 @@
+{
+  "request": {
+    "path": "/search/",
+    "params": {
+      "search_field": "name",
+      "search_value": "Spirited Away"
+    }
+  },
+  "recordedAt": "2026-10-30T10:44:34.621Z",
+  "response": {
+    "title_results": [
+      {
+        "resultType": "title",
+        "id": 1357583,
+        "name": "Spirited Away",
+        "type": "movie",
+        "year": 2001,
+        "imdb_id": "tt0245429",
+        "tmdb_id": 129,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1901969,
+        "name": "Spirited Away: Live on Stage",
+        "type": "movie",
+        "year": 2022,
+        "imdb_id": "tt26678995",
+        "tmdb_id": 1001196,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 3256654,
+        "name": "Spirited Away Flying to London",
+        "type": "tv_series",
+        "year": 2024,
+        "imdb_id": null,
+        "tmdb_id": 282990,
+        "tmdb_type": "tv"
+      }
+    ],
+    "people_results": []
+  }
+}

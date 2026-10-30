@@ -1,0 +1,365 @@
+{
+  "request": {
+    "path": "/search/",
+    "params": {
+      "search_field": "name",
+      "search_value": "Parasite"
+    }
+  },
+  "recordedAt": "2026-10-30T10:44:33.666Z",
+  "response": {
+    "title_results": [
+      {
+        "resultType": "title",
+        "id": 1295258,
+        "name": "Parasite",
+        "type": "movie",
+        "year": 2019,
+        "imdb_id": "tt6751668",
+        "tmdb_id": 496243,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1295256,
+        "name": "Parasite",
+        "type": "movie",
+        "year": 1982,
+        "imdb_id": "tt0084472",
+        "tmdb_id": 48311,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1806725,
+        "name": "Parasite",
+        "type": "movie",
+        "year": 2023,
+        "imdb_id": null,
+        "tmdb_id": 1267097,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 11205229,
+        "name": "PARASITE",
+        "type": "movie",
+        "year": null,
+        "imdb_id": null,
+        "tmdb_id": 1720740,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1295259,
+        "name": "Parasite",
+        "type": "movie",
+        "year": 2004,
+        "imdb_id": "tt0352699",
+        "tmdb_id": 291545,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1845161,
+        "name": "Parasite",
+        "type": "movie",
+        "year": 2024,
+        "imdb_id": "tt32473992",
+        "tmdb_id": 1322439,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 2673183,
+        "name": "Parasite",
+        "type": "short_film",
+        "year": 2006,
+        "imdb_id": "tt0934539",
+        "tmdb_id": 497637,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 2815329,
+        "name": "Parasite",
+        "type": "short_film",
+        "year": 2021,
+        "imdb_id": "tt16435498",
+        "tmdb_id": 629162,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 2817474,
+        "name": "Parasite",
+        "type": "short_film",
+        "year": 2015,
+        "imdb_id": "tt9653646",
+        "tmdb_id": 671137,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1865824,
+        "name": "Parasite",
+        "type": "movie",
+        "year": 2024,
+        "imdb_id": null,
+        "tmdb_id": 1363350,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1736533,
+        "name": "(para)site",
+        "type": "movie",
+        "year": 2022,
+        "imdb_id": null,
+        "tmdb_id": 1164770,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 2811841,
+        "name": "The Parasite",
+        "type": "short_film",
+        "year": 2005,
+        "imdb_id": "tt0455176",
+        "tmdb_id": 1694261,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1411431,
+        "name": "The Parasite",
+        "type": "movie",
+        "year": 1997,
+        "imdb_id": "tt0130177",
+        "tmdb_id": 227625,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 2656983,
+        "name": "The Parasite",
+        "type": "short_film",
+        "year": 2015,
+        "imdb_id": "tt5211608",
+        "tmdb_id": 540545,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1586167,
+        "name": "The Parasite",
+        "type": "movie",
+        "year": 1925,
+        "imdb_id": "tt0016200",
+        "tmdb_id": 622791,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1295260,
+        "name": "Parasite Eve",
+        "type": "movie",
+        "year": 1997,
+        "imdb_id": "tt0119860",
+        "tmdb_id": 33045,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1653605,
+        "name": "Parasite in Love",
+        "type": "movie",
+        "year": 2021,
+        "imdb_id": "tt16059146",
+        "tmdb_id": 709589,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 2785517,
+        "name": "Parasite Lady",
+        "type": "movie",
+        "year": 2023,
+        "imdb_id": "tt25971184",
+        "tmdb_id": 1112617,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 11233142,
+        "name": "Parasite Choon",
+        "type": "movie",
+        "year": 2021,
+        "imdb_id": "tt22187384",
+        "tmdb_id": 810509,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 11116055,
+        "name": "Parasite 2",
+        "type": "movie",
+        "year": 2026,
+        "imdb_id": null,
+        "tmdb_id": 1656415,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1411433,
+        "name": "The Parasite Doctor Suzune: Genesis",
+        "type": "movie",
+        "year": 2011,
+        "imdb_id": "tt2047769",
+        "tmdb_id": 260015,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1850282,
+        "name": "Parasite Quarantine",
+        "type": "movie",
+        "year": null,
+        "imdb_id": null,
+        "tmdb_id": 1329913,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 514268,
+        "name": "Parasite Dolls",
+        "type": "tv_miniseries",
+        "year": 2003,
+        "imdb_id": "tt0376058",
+        "tmdb_id": 42507,
+        "tmdb_type": "tv"
+      },
+      {
+        "resultType": "title",
+        "id": 1411432,
+        "name": "The Parasite Doctor Suzune: Evolution",
+        "type": "movie",
+        "year": 2011,
+        "imdb_id": "tt2100558",
+        "tmdb_id": 252944,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 2793615,
+        "name": "Parasites",
+        "type": "short_film",
+        "year": 2019,
+        "imdb_id": "tt7945158",
+        "tmdb_id": 1493942,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1295262,
+        "name": "Parasites",
+        "type": "movie",
+        "year": 2016,
+        "imdb_id": "tt4688294",
+        "tmdb_id": 402462,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1675524,
+        "name": "Parasite Family",
+        "type": "short_film",
+        "year": 2022,
+        "imdb_id": "tt17554348",
+        "tmdb_id": 926879,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1624785,
+        "name": "Parasites in Paradise",
+        "type": "movie",
+        "year": 2018,
+        "imdb_id": "tt8895032",
+        "tmdb_id": 783473,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 11232866,
+        "name": "Parasites",
+        "type": "movie",
+        "year": 2026,
+        "imdb_id": "tt37406425",
+        "tmdb_id": 1801731,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 11181391,
+        "name": "Parasite Dreams",
+        "type": "movie",
+        "year": 2010,
+        "imdb_id": null,
+        "tmdb_id": 1705216,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 3195261,
+        "name": "Parasite Island",
+        "type": "tv_series",
+        "year": 2019,
+        "imdb_id": "tt10934748",
+        "tmdb_id": 221883,
+        "tmdb_type": "tv"
+      },
+      {
+        "resultType": "title",
+        "id": 3218497,
+        "name": "Parasites",
+        "type": "tv_series",
+        "year": 2024,
+        "imdb_id": null,
+        "tmdb_id": 246651,
+        "tmdb_type": "tv"
+      },
+      {
+        "resultType": "title",
+        "id": 1673013,
+        "name": "Parasite Memories: The Making of 'Shivers'",
+        "type": "movie",
+        "year": 2014,
+        "imdb_id": "tt4387244",
+        "tmdb_id": 404280,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1968575,
+        "name": "Parasite 2",
+        "type": "movie",
+        "year": 2024,
+        "imdb_id": "tt34538722",
+        "tmdb_id": 1446415,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1728424,
+        "name": "Parasite War",
+        "type": "movie",
+        "year": 2018,
+        "imdb_id": "tt7593716",
+        "tmdb_id": 1152683,
+        "tmdb_type": "movie"
+      }
+    ],
+    "people_results": []
+  }
+}

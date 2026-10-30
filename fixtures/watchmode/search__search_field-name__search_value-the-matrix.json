@@ -1,0 +1,275 @@
+{
+  "request": {
+    "path": "/search/",
+    "params": {
+      "search_field": "name",
+      "search_value": "The Matrix"
+    }
+  },
+  "recordedAt": "2026-10-30T10:44:35.143Z",
+  "response": {
+    "title_results": [
+      {
+        "resultType": "title",
+        "id": 1406847,
+        "name": "The Matrix",
+        "type": "movie",
+        "year": 1999,
+        "imdb_id": "tt0133093",
+        "tmdb_id": 603,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1882633,
+        "name": "The Matrix",
+        "type": "movie",
+        "year": 2004,
+        "imdb_id": null,
+        "tmdb_id": 1386216,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1586886,
+        "name": "The Matrix Resurrections",
+        "type": "movie",
+        "year": 2021,
+        "imdb_id": "tt10838180",
+        "tmdb_id": 624860,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1406848,
+        "name": "The Matrix Reloaded",
+        "type": "movie",
+        "year": 2003,
+        "imdb_id": "tt0234215",
+        "tmdb_id": 604,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1406850,
+        "name": "The Matrix Revolutions",
+        "type": "movie",
+        "year": 2003,
+        "imdb_id": "tt0242653",
+        "tmdb_id": 605,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1662422,
+        "name": "The Matrix Revisited",
+        "type": "movie",
+        "year": 2001,
+        "imdb_id": "tt0295432",
+        "tmdb_id": 14543,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1891392,
+        "name": "The Matrix Recalibrated",
+        "type": "movie",
+        "year": 2004,
+        "imdb_id": "tt0410519",
+        "tmdb_id": 221495,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1572036,
+        "name": "The Matrix Reloaded Revisited",
+        "type": "short_film",
+        "year": 2004,
+        "imdb_id": "tt1830850",
+        "tmdb_id": 591955,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1665291,
+        "name": "The Matrix Revolutions: Super Big Mini Models",
+        "type": "movie",
+        "year": 2004,
+        "imdb_id": "tt5325338",
+        "tmdb_id": 684721,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1506259,
+        "name": "The Matrix Revolutions Revisited",
+        "type": "movie",
+        "year": 2004,
+        "imdb_id": "tt1830851",
+        "tmdb_id": 503880,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1663948,
+        "name": "The Matrix Reloaded: Pre-Load",
+        "type": "movie",
+        "year": 2003,
+        "imdb_id": "tt5319604",
+        "tmdb_id": 684731,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1665058,
+        "name": "The Matrix Revolutions: Neo Realism - Evolution of Bullet Time",
+        "type": "movie",
+        "year": 2004,
+        "imdb_id": "tt5323558",
+        "tmdb_id": 684740,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1664925,
+        "name": "The Matrix Reloaded: Car Chase",
+        "type": "movie",
+        "year": 2004,
+        "imdb_id": "tt5319982",
+        "tmdb_id": 684729,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1664958,
+        "name": "The Matrix Revolutions: Double Agent Smith",
+        "type": "movie",
+        "year": 2004,
+        "imdb_id": "tt5325370",
+        "tmdb_id": 684744,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1661858,
+        "name": "The Matrix: What Is Bullet-Time?",
+        "type": "movie",
+        "year": 1999,
+        "imdb_id": "tt0371396",
+        "tmdb_id": 684428,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 11054927,
+        "name": "The Matrix REdeZIONized",
+        "type": "movie",
+        "year": 2022,
+        "imdb_id": null,
+        "tmdb_id": 1568732,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 11106890,
+        "name": "The Matrixww",
+        "type": "movie",
+        "year": null,
+        "imdb_id": null,
+        "tmdb_id": 1642500,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1808052,
+        "name": "Matrix 5",
+        "type": "movie",
+        "year": null,
+        "imdb_id": "tt31998838",
+        "tmdb_id": 1268926,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 2726677,
+        "name": "thematrix061702_ROUGHV.5.wmv",
+        "type": "short_film",
+        "year": 2017,
+        "imdb_id": "tt8097048",
+        "tmdb_id": 508602,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1403868,
+        "name": "The Living Matrix",
+        "type": "movie",
+        "year": 2009,
+        "imdb_id": "tt1499960",
+        "tmdb_id": 119742,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 3311182,
+        "name": "The Approval Matrix",
+        "type": "tv_series",
+        "year": 2014,
+        "imdb_id": "tt3959436",
+        "tmdb_id": 325692,
+        "tmdb_type": "tv"
+      },
+      {
+        "resultType": "title",
+        "id": 11152188,
+        "name": "The Body as Matrix: Matthew Barney's Cremaster Cycle",
+        "type": "movie",
+        "year": 2002,
+        "imdb_id": null,
+        "tmdb_id": 472854,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1559756,
+        "name": "The American Matrix: Age of Deception",
+        "type": "movie",
+        "year": 2009,
+        "imdb_id": "tt1595473",
+        "tmdb_id": 26214,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 11172012,
+        "name": "The Zionist Matrix of Power",
+        "type": "movie",
+        "year": 2010,
+        "imdb_id": null,
+        "tmdb_id": 408912,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1712093,
+        "name": "The Religion Matrix",
+        "type": "movie",
+        "year": 2021,
+        "imdb_id": null,
+        "tmdb_id": 1128583,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1602893,
+        "name": "The Happiness Matrix",
+        "type": "movie",
+        "year": 2012,
+        "imdb_id": "tt2062668",
+        "tmdb_id": 323256,
+        "tmdb_type": "movie"
+      }
+    ],
+    "people_results": []
+  }
+}

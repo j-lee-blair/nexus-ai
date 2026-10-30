@@ -1,0 +1,35 @@
+{
+  "request": {
+    "path": "/search/",
+    "params": {
+      "search_field": "name",
+      "search_value": "En man som heter Ove"
+    }
+  },
+  "recordedAt": "2026-10-30T10:44:36.674Z",
+  "response": {
+    "title_results": [
+      {
+        "resultType": "title",
+        "id": 1925888,
+        "name": "En man som heter Ove",
+        "type": "movie",
+        "year": 2018,
+        "imdb_id": null,
+        "tmdb_id": 685369,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 18931,
+        "name": "A Man Called Ove",
+        "type": "movie",
+        "year": 2015,
+        "imdb_id": "tt4080728",
+        "tmdb_id": 348678,
+        "tmdb_type": "movie"
+      }
+    ],
+    "people_results": []
+  }
+}

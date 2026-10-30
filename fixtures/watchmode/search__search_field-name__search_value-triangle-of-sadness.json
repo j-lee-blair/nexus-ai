@@ -1,0 +1,25 @@
+{
+  "request": {
+    "path": "/search/",
+    "params": {
+      "search_field": "name",
+      "search_value": "Triangle of Sadness"
+    }
+  },
+  "recordedAt": "2026-10-30T10:44:37.066Z",
+  "response": {
+    "title_results": [
+      {
+        "resultType": "title",
+        "id": 1568066,
+        "name": "Triangle of Sadness",
+        "type": "movie",
+        "year": 2022,
+        "imdb_id": "tt7322224",
+        "tmdb_id": 497828,
+        "tmdb_type": "movie"
+      }
+    ],
+    "people_results": []
+  }
+}

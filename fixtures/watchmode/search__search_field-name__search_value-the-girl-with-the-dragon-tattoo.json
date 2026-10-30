@@ -1,0 +1,105 @@
+{
+  "request": {
+    "path": "/search/",
+    "params": {
+      "search_field": "name",
+      "search_value": "The Girl with the Dragon Tattoo"
+    }
+  },
+  "recordedAt": "2026-10-30T10:44:36.206Z",
+  "response": {
+    "title_results": [
+      {
+        "resultType": "title",
+        "id": 1393986,
+        "name": "The Girl with the Dragon Tattoo",
+        "type": "movie",
+        "year": 2011,
+        "imdb_id": "tt1568346",
+        "tmdb_id": 65754,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1393987,
+        "name": "The Girl with the Dragon Tattoo",
+        "type": "movie",
+        "year": 2009,
+        "imdb_id": "tt1132620",
+        "tmdb_id": 15472,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 3291055,
+        "name": "The Girl with the Dragon Tattoo",
+        "type": "tv_series",
+        "year": 2026,
+        "imdb_id": "tt12401288",
+        "tmdb_id": 311751,
+        "tmdb_type": "tv"
+      },
+      {
+        "resultType": "title",
+        "id": 1882109,
+        "name": "The Girl with the Dragon Tattoo: Characters - Salander, Blomkvist and Vanger",
+        "type": "movie",
+        "year": 2012,
+        "imdb_id": "tt5299940",
+        "tmdb_id": 659324,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1759352,
+        "name": "The Girl with the Dragon Tattoo: Men Who Hate Women",
+        "type": "movie",
+        "year": 2012,
+        "imdb_id": "tt5280624",
+        "tmdb_id": 1199205,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1882110,
+        "name": "The Girl with the Dragon Tattoo: On Location - Sweden and Hollywood",
+        "type": "movie",
+        "year": 2012,
+        "imdb_id": "tt5299970",
+        "tmdb_id": 969014,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1759362,
+        "name": "The Girl with the Dragon Tattoo: Metal One Sheet",
+        "type": "movie",
+        "year": 2012,
+        "imdb_id": "tt5299990",
+        "tmdb_id": 1199215,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1759359,
+        "name": "The Girl with the Dragon Tattoo: Post-Production",
+        "type": "movie",
+        "year": 2012,
+        "imdb_id": "tt5299980",
+        "tmdb_id": 1199212,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1759360,
+        "name": "The Girl with the Dragon Tattoo: Hard Copy",
+        "type": "movie",
+        "year": 2012,
+        "imdb_id": "tt5299986",
+        "tmdb_id": 1199213,
+        "tmdb_type": "movie"
+      }
+    ],
+    "people_results": []
+  }
+}

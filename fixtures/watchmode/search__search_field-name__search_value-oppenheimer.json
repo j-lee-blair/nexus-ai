@@ -1,0 +1,640 @@
+{
+  "request": {
+    "path": "/search/",
+    "params": {
+      "search_field": "name",
+      "search_value": "Oppenheimer"
+    }
+  },
+  "recordedAt": "2026-10-30T10:44:34.122Z",
+  "response": {
+    "title_results": [
+      {
+        "resultType": "title",
+        "id": 1643798,
+        "name": "Oppenheimer",
+        "type": "movie",
+        "year": 2023,
+        "imdb_id": "tt15398776",
+        "tmdb_id": 872585,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 513969,
+        "name": "Oppenheimer",
+        "type": "tv_miniseries",
+        "year": 1980,
+        "imdb_id": "tt0078037",
+        "tmdb_id": 8771,
+        "tmdb_type": "tv"
+      },
+      {
+        "resultType": "title",
+        "id": 11101582,
+        "name": "Oppenheimer",
+        "type": "movie",
+        "year": null,
+        "imdb_id": null,
+        "tmdb_id": 1634345,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1722317,
+        "name": "Oppenheimer After Trinity",
+        "type": "movie",
+        "year": 2023,
+        "imdb_id": "tt28017314",
+        "tmdb_id": 1143770,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1728943,
+        "name": "Oppenheimer: The Real Story",
+        "type": "movie",
+        "year": 2023,
+        "imdb_id": "tt27192512",
+        "tmdb_id": 1142906,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1752971,
+        "name": "Oppenheimer: Genius or Madman?",
+        "type": "movie",
+        "year": 2023,
+        "imdb_id": null,
+        "tmdb_id": 1189676,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 11022169,
+        "name": "Oppenheimer, la véritable histoire de la bombe atomique.",
+        "type": "movie",
+        "year": 2025,
+        "imdb_id": null,
+        "tmdb_id": 1520408,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 4162431,
+        "name": "Slucaj Openhajmer",
+        "type": "tv_movie",
+        "year": 1970,
+        "imdb_id": "tt0192617",
+        "tmdb_id": 1156529,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1842511,
+        "name": "Oppenheimer Or How I Learned To Stop Worrying And Love The Volcano",
+        "type": "movie",
+        "year": null,
+        "imdb_id": null,
+        "tmdb_id": 1318686,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1731006,
+        "name": "Oppenheimer: O Gênio Arrependido",
+        "type": "movie",
+        "year": 2023,
+        "imdb_id": null,
+        "tmdb_id": 1156443,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 3275235,
+        "name": "Oppenheimer und die Bombe",
+        "type": "tv_miniseries",
+        "year": 2025,
+        "imdb_id": null,
+        "tmdb_id": 297315,
+        "tmdb_type": "tv"
+      },
+      {
+        "resultType": "title",
+        "id": 4172034,
+        "name": "The Case of Oppenheimer",
+        "type": "tv_movie",
+        "year": 1967,
+        "imdb_id": "tt0443178",
+        "tmdb_id": 1187380,
+        "tmdb_type": "movie"
+      }
+    ],
+    "people_results": [
+      {
+        "resultType": "person",
+        "id": 7125594,
+        "name": "Cameron Oppenheimer",
+        "main_profession": "actress",
+        "imdb_id": "nm15205398",
+        "tmdb_id": 1368723
+      },
+      {
+        "resultType": "person",
+        "id": 7459394,
+        "name": "Joe Oppenheimer",
+        "main_profession": "producer",
+        "imdb_id": "nm0649189",
+        "tmdb_id": 63595
+      },
+      {
+        "resultType": "person",
+        "id": 714794,
+        "name": "Alan Oppenheimer",
+        "main_profession": "actor",
+        "imdb_id": "nm0649178",
+        "tmdb_id": 24320
+      },
+      {
+        "resultType": "person",
+        "id": 7501745,
+        "name": "Julie Oppenheimer",
+        "main_profession": "script_department",
+        "imdb_id": "nm0649193",
+        "tmdb_id": 1209612
+      },
+      {
+        "resultType": "person",
+        "id": 72642204,
+        "name": "Megan Oppenheimer",
+        "main_profession": "costume_department",
+        "imdb_id": "nm2427356",
+        "tmdb_id": 1519883
+      },
+      {
+        "resultType": "person",
+        "id": 78967407,
+        "name": "Joshua Oppenheimer",
+        "main_profession": "writer",
+        "imdb_id": "nm0649191",
+        "tmdb_id": 1582866
+      },
+      {
+        "resultType": "person",
+        "id": 79270694,
+        "name": "Mark Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 1883535
+      },
+      {
+        "resultType": "person",
+        "id": 74128300,
+        "name": "Brianna Oppenheimer",
+        "main_profession": "actress",
+        "imdb_id": "nm5138143",
+        "tmdb_id": 1366552
+      },
+      {
+        "resultType": "person",
+        "id": 79832006,
+        "name": "Marty Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2598194
+      },
+      {
+        "resultType": "person",
+        "id": 7444352,
+        "name": "Jess Oppenheimer",
+        "main_profession": "writer",
+        "imdb_id": "nm0649188",
+        "tmdb_id": 1227387
+      },
+      {
+        "resultType": "person",
+        "id": 7651669,
+        "name": "Meaghan Oppenheimer",
+        "main_profession": "writer",
+        "imdb_id": "nm0649198",
+        "tmdb_id": 1023389
+      },
+      {
+        "resultType": "person",
+        "id": 7322098,
+        "name": "George Oppenheimer",
+        "main_profession": "writer",
+        "imdb_id": "nm0649183",
+        "tmdb_id": 70981
+      },
+      {
+        "resultType": "person",
+        "id": 72178833,
+        "name": "Clive Oppenheimer",
+        "main_profession": "director",
+        "imdb_id": "nm2856535",
+        "tmdb_id": 1510560
+      },
+      {
+        "resultType": "person",
+        "id": 7488470,
+        "name": "Joshua Oppenheimer",
+        "main_profession": "writer",
+        "imdb_id": "nm1484791",
+        "tmdb_id": 53296
+      },
+      {
+        "resultType": "person",
+        "id": 71338079,
+        "name": "Guelmarí Oppenheimer",
+        "main_profession": "actress",
+        "imdb_id": "nm1086244",
+        "tmdb_id": 1669536
+      },
+      {
+        "resultType": "person",
+        "id": 7280115,
+        "name": "Evan Oppenheimer",
+        "main_profession": "writer",
+        "imdb_id": "nm0649181",
+        "tmdb_id": 232019
+      },
+      {
+        "resultType": "person",
+        "id": 7748735,
+        "name": "Peer J. Oppenheimer",
+        "main_profession": "producer",
+        "imdb_id": "nm0649201",
+        "tmdb_id": 590029
+      },
+      {
+        "resultType": "person",
+        "id": 710082217,
+        "name": "Michael Oppenheimer",
+        "main_profession": "miscellaneous",
+        "imdb_id": "nm2309692",
+        "tmdb_id": 2848340
+      },
+      {
+        "resultType": "person",
+        "id": 7397893,
+        "name": "J. Robert Oppenheimer",
+        "main_profession": "archive_footage",
+        "imdb_id": "nm0649185",
+        "tmdb_id": 1197805
+      },
+      {
+        "resultType": "person",
+        "id": 7214318,
+        "name": "Deborah Oppenheimer",
+        "main_profession": "producer",
+        "imdb_id": "nm0649179",
+        "tmdb_id": 1434066
+      },
+      {
+        "resultType": "person",
+        "id": 72771205,
+        "name": "Randy Oppenheimer",
+        "main_profession": "actor",
+        "imdb_id": "nm2474921",
+        "tmdb_id": 1679903
+      },
+      {
+        "resultType": "person",
+        "id": 79966893,
+        "name": "Michael Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2727991
+      },
+      {
+        "resultType": "person",
+        "id": 7928392,
+        "name": "Toby Oppenheimer",
+        "main_profession": "director",
+        "imdb_id": "nm1031768",
+        "tmdb_id": 228228
+      },
+      {
+        "resultType": "person",
+        "id": 710593628,
+        "name": "Gregg Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 3378262
+      },
+      {
+        "resultType": "person",
+        "id": 79228596,
+        "name": "Gary Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 1800122
+      },
+      {
+        "resultType": "person",
+        "id": 74054913,
+        "name": "Andrew Oppenheimer",
+        "main_profession": "producer",
+        "imdb_id": "nm4771088",
+        "tmdb_id": 1495701
+      },
+      {
+        "resultType": "person",
+        "id": 79066479,
+        "name": "Edgar Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 1595540
+      },
+      {
+        "resultType": "person",
+        "id": 79981714,
+        "name": "Frank Oppenheimer",
+        "main_profession": "archive_footage",
+        "imdb_id": "nm9509172",
+        "tmdb_id": 2742487
+      },
+      {
+        "resultType": "person",
+        "id": 79749128,
+        "name": "Alex Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2519781
+      },
+      {
+        "resultType": "person",
+        "id": 7356633,
+        "name": "Hans Oppenheimer",
+        "main_profession": "producer",
+        "imdb_id": "nm0649184",
+        "tmdb_id": 41623
+      },
+      {
+        "resultType": "person",
+        "id": 79079599,
+        "name": "Thaddias P. Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 1626133
+      },
+      {
+        "resultType": "person",
+        "id": 710126047,
+        "name": "Vannes Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2903976
+      },
+      {
+        "resultType": "person",
+        "id": 79223415,
+        "name": "Matt Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 1794662
+      },
+      {
+        "resultType": "person",
+        "id": 79756165,
+        "name": "Henderson Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2526067
+      },
+      {
+        "resultType": "person",
+        "id": 79819166,
+        "name": "Henderson Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2585029
+      },
+      {
+        "resultType": "person",
+        "id": 710599974,
+        "name": "Zoe Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 3383334
+      },
+      {
+        "resultType": "person",
+        "id": 710486834,
+        "name": "Jaime Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 3265709
+      },
+      {
+        "resultType": "person",
+        "id": 710706493,
+        "name": "Henderson Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 3491576
+      },
+      {
+        "resultType": "person",
+        "id": 72798403,
+        "name": "Robert Oppenheimer",
+        "main_profession": null,
+        "imdb_id": "nm3134173",
+        "tmdb_id": 551930
+      },
+      {
+        "resultType": "person",
+        "id": 79761605,
+        "name": "Mireille Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2531730
+      },
+      {
+        "resultType": "person",
+        "id": 79763911,
+        "name": "Henderson Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2533636
+      },
+      {
+        "resultType": "person",
+        "id": 710975310,
+        "name": "Joshua Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 3764036
+      },
+      {
+        "resultType": "person",
+        "id": 711005524,
+        "name": "Eliot Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 3797315
+      },
+      {
+        "resultType": "person",
+        "id": 710548570,
+        "name": "Larry Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 3332912
+      },
+      {
+        "resultType": "person",
+        "id": 79763674,
+        "name": "Anna Lynn Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2533642
+      },
+      {
+        "resultType": "person",
+        "id": 79803103,
+        "name": "Mireille Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2570407
+      },
+      {
+        "resultType": "person",
+        "id": 79803104,
+        "name": "Henderson Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2570406
+      },
+      {
+        "resultType": "person",
+        "id": 710871906,
+        "name": "Henry Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 3659937
+      },
+      {
+        "resultType": "person",
+        "id": 710930020,
+        "name": "Henry Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 3718445
+      },
+      {
+        "resultType": "person",
+        "id": 79630317,
+        "name": "Fritz Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2400776
+      },
+      {
+        "resultType": "person",
+        "id": 710039950,
+        "name": "Wim Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2805394
+      },
+      {
+        "resultType": "person",
+        "id": 710922384,
+        "name": "Michael Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 3712819
+      },
+      {
+        "resultType": "person",
+        "id": 710907801,
+        "name": "Jake Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 3696903
+      },
+      {
+        "resultType": "person",
+        "id": 710679207,
+        "name": "Cathy Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 3464482
+      },
+      {
+        "resultType": "person",
+        "id": 710820275,
+        "name": "Henderson Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 3604621
+      },
+      {
+        "resultType": "person",
+        "id": 79908679,
+        "name": "Krista L. Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2671786
+      },
+      {
+        "resultType": "person",
+        "id": 79629896,
+        "name": "Hansi Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2400464
+      },
+      {
+        "resultType": "person",
+        "id": 710075099,
+        "name": "Owen Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2842594
+      },
+      {
+        "resultType": "person",
+        "id": 711454440,
+        "name": "rdj's character in oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 6336048
+      },
+      {
+        "resultType": "person",
+        "id": 710435819,
+        "name": "Joseph Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 3213462
+      },
+      {
+        "resultType": "person",
+        "id": 711415795,
+        "name": "Adelaide Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 6301287
+      },
+      {
+        "resultType": "person",
+        "id": 79756147,
+        "name": "Mireille Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 2526043
+      },
+      {
+        "resultType": "person",
+        "id": 711692787,
+        "name": "Shaina Oppenheimer",
+        "main_profession": null,
+        "imdb_id": null,
+        "tmdb_id": 6549152
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "request": {
+    "path": "/search/",
+    "params": {
+      "search_field": "name",
+      "search_value": "qzxv no such movie"
+    }
+  },
+  "recordedAt": "2026-10-30T10:44:38.573Z",
+  "response": {
+    "title_results": [],
+    "people_results": []
+  }
+}

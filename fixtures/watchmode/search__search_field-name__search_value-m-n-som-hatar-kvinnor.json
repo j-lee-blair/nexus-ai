@@ -1,0 +1,25 @@
+{
+  "request": {
+    "path": "/search/",
+    "params": {
+      "search_field": "name",
+      "search_value": "Män som hatar kvinnor"
+    }
+  },
+  "recordedAt": "2026-10-30T10:44:35.639Z",
+  "response": {
+    "title_results": [
+      {
+        "resultType": "title",
+        "id": 1393987,
+        "name": "The Girl with the Dragon Tattoo",
+        "type": "movie",
+        "year": 2009,
+        "imdb_id": "tt1132620",
+        "tmdb_id": 15472,
+        "tmdb_type": "movie"
+      }
+    ],
+    "people_results": []
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "request": {
+    "path": "/search/",
+    "params": {
+      "search_field": "name",
+      "search_value": "Jönssonligan"
+    }
+  },
+  "recordedAt": "2026-10-30T10:44:38.178Z",
+  "response": {
+    "title_results": [
+      {
+        "resultType": "title",
+        "id": 1415671,
+        "name": "Jönssonligan dyker upp igen",
+        "type": "movie",
+        "year": 1986,
+        "imdb_id": "tt0091314",
+        "tmdb_id": 22192,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 11008538,
+        "name": "Jönssonligan & Wall Enberg",
+        "type": "movie",
+        "year": 2026,
+        "imdb_id": "tt36554935",
+        "tmdb_id": 1502173,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1757792,
+        "name": "Jönssonligan kommer tillbaka",
+        "type": "movie",
+        "year": 2024,
+        "imdb_id": "tt29633969",
+        "tmdb_id": 1196918,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1196654,
+        "name": "Jönssonligan & den svarta diamanten",
+        "type": "movie",
+        "year": 1992,
+        "imdb_id": "tt0104581",
+        "tmdb_id": 23654,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1406747,
+        "name": "The Master Plan",
+        "type": "movie",
+        "year": 2015,
+        "imdb_id": "tt3220192",
+        "tmdb_id": 308160,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1400026,
+        "name": "The Jonsson Gang & Dynamite Harry",
+        "type": "movie",
+        "year": 1982,
+        "imdb_id": "tt0084189",
+        "tmdb_id": 29224,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1400027,
+        "name": "The Jönsson Gang Gets Gold Fever",
+        "type": "movie",
+        "year": 1984,
+        "imdb_id": "tt0087527",
+        "tmdb_id": 37727,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1400028,
+        "name": "The Jönsson Gang in Mallorca",
+        "type": "movie",
+        "year": 1989,
+        "imdb_id": "tt0097636",
+        "tmdb_id": 37728,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1196656,
+        "name": "The Jonsson Gang's Greatest Robbery",
+        "type": "movie",
+        "year": 1995,
+        "imdb_id": "tt0113510",
+        "tmdb_id": 37731,
+        "tmdb_type": "movie"
+      },
+      {
+        "resultType": "title",
+        "id": 1196655,
+        "name": "Jönssonligan spelar högt",
+        "type": "movie",
+        "year": 2000,
+        "imdb_id": "tt0269410",
+        "tmdb_id": 37730,
+        "tmdb_type": "movie"
+      }
+    ],
+    "people_results": []
+  }
+}
