@@ -44,6 +44,8 @@ const OUTGOING_STAGGER_MS = 40;
 const MAX_OUTGOING_STAGGER_MS = 270;
 const NEXUS_MOVE_MS = 145;
 const FADE_OUT_MS = 200;
+/** How long the nexus glow takes to die away once the streams start flying out. */
+const GLOW_FADE_MS = 180;
 const TAIL_SEGMENTS = 14;
 const CYAN = "92, 242, 255";
 const MAGENTA = "255, 92, 207";
@@ -120,20 +122,35 @@ function drawStream(context: CanvasRenderingContext2D, stream: Stream, progress:
   context.fill();
 }
 
-/** The glowing nexus point. It grows a little with every stream that reaches it. */
-function drawNexus(context: CanvasRenderingContext2D, nexus: Point, energy: number, timeMs: number) {
+/**
+ * The glowing nexus point. It grows a little with every stream that reaches it, and shrinks
+ * away as `brightness` drops from 1 to 0.
+ */
+function drawNexus(
+  context: CanvasRenderingContext2D,
+  nexus: Point,
+  energy: number,
+  timeMs: number,
+  brightness: number,
+) {
+  if (brightness <= 0) {
+    return;
+  }
+
   const pulse = Math.sin(timeMs / 60) * 2;
-  const radius = (8 + Math.min(energy, 10) * 2 + pulse) * 3;
+  const radius = (8 + Math.min(energy, 10) * 2 + pulse) * 3 * brightness;
 
   const glow = context.createRadialGradient(nexus.x, nexus.y, 0, nexus.x, nexus.y, radius);
   glow.addColorStop(0, "rgba(255, 255, 255, 0.95)");
   glow.addColorStop(0.3, `rgba(${CYAN}, 0.6)`);
   glow.addColorStop(1, `rgba(${MAGENTA}, 0)`);
 
+  context.globalAlpha = brightness;
   context.fillStyle = glow;
   context.beginPath();
   context.arc(nexus.x, nexus.y, radius, 0, Math.PI * 2);
   context.fill();
+  context.globalAlpha = 1;
 }
 
 /** Starts the Discovery streams. They keep gathering at `nexus` until `resolve` is called. */
@@ -158,6 +175,8 @@ export function startDiscovery(canvas: HTMLCanvasElement, nexus: Point): Discove
   let nexusMoveTo = nexus;
   let nexusMoveStart = 0;
   let isGathering = true;
+  /** When the streams start flying out of the nexus; until then the glow stays at full strength. */
+  let flyOutStart = Infinity;
   let lastSpawnTime = -Infinity;
   let energy = 0;
   let frameRequest = 0;
@@ -229,7 +248,8 @@ export function startDiscovery(canvas: HTMLCanvasElement, nexus: Point): Discove
       drawStream(context, stream, progress);
     }
 
-    drawNexus(context, currentNexus, energy, now - startTime);
+    const glowBrightness = 1 - easeOut((now - flyOutStart) / GLOW_FADE_MS);
+    drawNexus(context, currentNexus, energy, now - startTime, glowBrightness);
     context.globalCompositeOperation = "source-over";
 
     if (whenAllLanded !== null && streamsStillMoving === 0) {
@@ -251,6 +271,7 @@ export function startDiscovery(canvas: HTMLCanvasElement, nexus: Point): Discove
   function resolve(answerNexus: Point, targets: StreamTarget[], onDone: () => void) {
     const now = performance.now();
     isGathering = false;
+    flyOutStart = now + NEXUS_MOVE_MS / 2;
     nexusMoveFrom = currentNexus;
     nexusMoveTo = answerNexus;
     nexusMoveStart = now;
