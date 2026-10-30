@@ -158,6 +158,30 @@ A web app; no native app for the MVP. See [ADR 0004](docs/adr/0004-nextjs-vercel
 - **Explain jargon.** When proposing technical options, explain unfamiliar terms in plain language.
 - **Verify before claiming done.** Run the app and its tests; report failures honestly.
 
+## Coding conventions
+
+**Readability beats clever syntax.** Code should read top to bottom like a short explanation, so
+someone new to the project can follow it without unpacking dense expressions.
+
+- **One step per line.** Await each promise on its own line and give the result a name.
+
+  ```ts
+  // Avoid
+  const body = (await (await search(request)).json()) as SearchResponse;
+
+  // Prefer
+  const response = await search(request);
+  const body = (await response.json()) as SearchResponse;
+  ```
+
+- **Name intermediate values** instead of nesting or chaining several calls in one expression.
+- **Use plain `if`/`else` and early returns** rather than nested ternaries, or `&&` / `||` / `??`
+  used to produce values in non-obvious ways.
+- **Tests read like steps:** arrange, act, assert, with one clear assertion target per line. Narrow
+  union types with an explicit check (`if (!body.ok) throw …`) rather than `body.ok && body.data`.
+- **Descriptive names.** No abbreviations beyond well-known ones such as `id` and `url`.
+- **Comments explain why**, not what the next line does.
+
 ## What AI agents must NOT do
 
 - **Do not choose the technology stack or architecture** without presenting options and trade-offs

@@ -23,9 +23,16 @@ let mock: DataSource | undefined;
  * - anything else: not connected yet.
  */
 export function getDataSource(env: NodeJS.ProcessEnv = process.env): DataSource {
-  if (env.NEXUS_DATA_SOURCE === "mock" && env.VERCEL_ENV !== "production") {
-    mock ??= createMockDataSource({ latencyMs: Number(env.NEXUS_MOCK_LATENCY_MS ?? 700) });
-    return mock;
+  const wantsMock = env.NEXUS_DATA_SOURCE === "mock";
+  const isProduction = env.VERCEL_ENV === "production";
+
+  if (!wantsMock || isProduction) {
+    return notConnected;
   }
-  return notConnected;
+
+  if (mock === undefined) {
+    const latencyMs = Number(env.NEXUS_MOCK_LATENCY_MS ?? 700);
+    mock = createMockDataSource({ latencyMs });
+  }
+  return mock;
 }
