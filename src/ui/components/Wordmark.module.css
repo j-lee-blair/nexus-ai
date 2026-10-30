@@ -1,0 +1,17 @@
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--fg);
+  text-decoration: none;
+  align-self: flex-start;
+}
+
+.x {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

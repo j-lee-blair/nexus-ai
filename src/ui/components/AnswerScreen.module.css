@@ -1,0 +1,43 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 40px 16px 32px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.back {
+  align-self: flex-start;
+  padding: 6px 0;
+  font-size: 14px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.back:hover,
+.back:focus-visible {
+  color: var(--fg);
+  text-decoration: underline;
+}
+
+.region {
+  min-height: 200px;
+}
+
+.loading,
+.problem {
+  margin: 0;
+  padding: 24px 4px;
+  color: var(--muted);
+}
+
+.problem {
+  color: var(--fg);
+}

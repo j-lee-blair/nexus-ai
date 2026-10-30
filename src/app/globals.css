@@ -1,4 +1,4 @@
-/* Converge tokens (see CLAUDE.md "Experience design"). Components arrive in F6–F8. */
+/* Converge tokens (see CLAUDE.md "Experience design"). Component styles live next to each component. */
 :root {
   --bg: #0a0f1f;
   --bg-glow: #18204a;
@@ -6,6 +6,10 @@
   --muted: #a9b3e6;
   --cyan: #5cf2ff;
   --magenta: #ff5ccf;
+  --gradient: linear-gradient(90deg, var(--cyan), var(--magenta));
+  --panel: rgba(255, 255, 255, 0.05);
+  --panel-hover: rgba(255, 255, 255, 0.09);
+  --line: rgba(160, 175, 255, 0.18);
   color-scheme: dark;
 }
 
@@ -22,5 +26,19 @@ body {
 body {
   background: radial-gradient(120% 60% at 50% 0%, var(--bg-glow) 0%, var(--bg) 60%) fixed, var(--bg);
   color: var(--fg);
-  font-family: system-ui, sans-serif;
+  font: 16px/1.55 var(--font-text), system-ui, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Hidden on screen but still read by screen readers. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
