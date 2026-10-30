@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { AvailabilityData } from "@/contracts/api";
 import { getAvailability } from "@/ui/api-client";
 import { availabilitySummary } from "@/ui/format";
+import { useConvergeReveal } from "@/ui/reveal/useConvergeReveal";
 import { AnswerView } from "./AnswerView";
 import { Wordmark } from "./Wordmark";
 import styles from "./AnswerScreen.module.css";
@@ -22,6 +23,15 @@ interface AnswerScreenProps {
 
 export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
   const [state, setState] = useState<AnswerState>({ status: "loading" });
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const answerRef = useRef<HTMLDivElement>(null);
+
+  let cached = false;
+  if (state.status === "ready") {
+    cached = state.cached;
+  }
+  const { isRevealing } = useConvergeReveal({ status: state.status, cached, canvasRef, answerRef });
+  const isBusy = state.status === "loading" || isRevealing;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -67,13 +77,16 @@ export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
         </Link>
       </header>
 
-      <div aria-busy={state.status === "loading"} className={styles.region}>
+      <div ref={answerRef} aria-busy={isBusy} className={styles.region}>
         <AnswerContent state={state} />
       </div>
 
       <p role="status" aria-live="polite" className="visually-hidden">
-        <Announcement state={state} />
+        <Announcement state={state} isRevealing={isRevealing} />
       </p>
+
+      {/* The Converge reveal draws here. Decoration only, so hidden from screen readers. */}
+      <canvas ref={canvasRef} className={styles.effects} aria-hidden="true" />
     </main>
   );
 }
@@ -91,9 +104,9 @@ function AnswerContent({ state }: { state: AnswerState }) {
   return <AnswerView availability={state.availability} checkedAt={state.checkedAt} now={now} />;
 }
 
-/** What screen readers hear once the answer is ready. */
-function Announcement({ state }: { state: AnswerState }) {
-  if (state.status !== "ready") {
+/** What screen readers hear once the answer is ready and the reveal has finished. */
+function Announcement({ state, isRevealing }: { state: AnswerState; isRevealing: boolean }) {
+  if (state.status !== "ready" || isRevealing) {
     return null;
   }
 
