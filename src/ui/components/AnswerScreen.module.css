@@ -27,6 +27,14 @@
   text-decoration: underline;
 }
 
+/* Wide split view: the answer uses more of its column, with room for two columns of offers. */
+@media (min-width: 1025px) {
+  .screen {
+    max-width: 920px;
+    padding: 48px 40px 40px;
+  }
+}
+
 /* Split view: the search column beside the answer has the wordmark and the results. */
 @media (min-width: 768px) {
   .header {

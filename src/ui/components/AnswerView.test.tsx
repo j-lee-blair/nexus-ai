@@ -89,4 +89,10 @@ describe("MovieHeader", () => {
     expect(html).toContain("2020");
     expect(html).not.toContain("data-reveal");
   });
+
+  it("lets the title take focus after a movie is picked, without adding it to the Tab order", () => {
+    const html = renderToStaticMarkup(<MovieHeader movie={movie} />);
+
+    expect(html).toContain('<h1 tabindex="-1"');
+  });
 });
