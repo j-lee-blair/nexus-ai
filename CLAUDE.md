@@ -120,6 +120,12 @@ ready.
 **Snap (cached answer): Ignite.** A gradient line flashes across the nexus point and the answer
 opens up and down from it in about 0.25s. It should feel like "Nexus has seen this before".
 
+**Wider screens: split view.** From 768px wide (tablet and up), search stays in a column on the
+left and the answer for the picked movie fills the right, so picking another result needs no Back.
+The nexus point is the centre of the answer pane. Phones keep separate search and answer screens.
+Chosen on 2026-11-01; prototype `docs/design/converge-desktop.html` (option A). Plan: F14 in
+`docs/features.md`.
+
 **Rules for every reveal.**
 - The answer is real HTML underneath; effects are an overlay. Screen readers get the answer
   immediately (`aria-busy` during the reveal, a polite live announcement after).
