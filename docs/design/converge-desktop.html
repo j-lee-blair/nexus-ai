@@ -1,0 +1,750 @@
+<title>Converge Desktop Layouts</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;800&family=Outfit:wght@400;500;600;700&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Layout: brief, then tabs for three desktop layouts; each tab = a scaled 1280–1920px Converge app beside its design notes. */
+:root{
+  --bg:#f3f4f8; --panel:#ffffff; --fg:#15171e; --muted:#596074; --line:#dadde8; --accent:#2f3fb8;
+  --f-ui:"Hanken Grotesk", system-ui, sans-serif;
+  /* Converge app tokens (same in both page themes: the app is dark by design) */
+  --n-bg:#0a0f1f; --n-glow:#18204a; --n-fg:#eef2ff; --n-muted:#a9b3e6; --n-cyan:#5cf2ff; --n-magenta:#ff5ccf;
+  --n-gradient:linear-gradient(90deg,var(--n-cyan),var(--n-magenta));
+  --n-panel:rgba(255,255,255,.05); --n-panel-hover:rgba(255,255,255,.09); --n-line:rgba(160,175,255,.18);
+  --f-display:"Unbounded", "Outfit", system-ui, sans-serif; --f-text:"Outfit", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1117; --panel:#181b24; --fg:#eceef5; --muted:#9aa1b6; --line:#2a2f3d; --accent:#9aa6ff; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1117; --panel:#181b24; --fg:#eceef5; --muted:#9aa1b6; --line:#2a2f3d; --accent:#9aa6ff; color-scheme:dark}
+
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--f-ui);
+  padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));padding-block:32px 64px}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+h1{font-size:clamp(28px,4vw,40px);line-height:1.1;margin:0;font-weight:800;letter-spacing:-.02em;text-wrap:balance}
+.lede{max-width:70ch;color:var(--muted);margin:8px 0 0}
+.lede strong{color:var(--fg)}
+.controls{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tabs button{font:600 15px var(--f-ui);padding:9px 16px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.opts{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;font-size:14px;color:var(--muted)}
+.opts label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.opts select,.opts button{font:600 14px var(--f-ui);padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.frame{position:relative;width:100%;overflow:hidden;border-radius:14px;background:var(--n-bg);box-shadow:0 24px 60px -28px rgba(10,12,30,.55);border:1px solid var(--line)}
+.frame:fullscreen{border-radius:0;border:0}
+.memo{font-size:13px;color:var(--muted);margin:-12px 0 0}
+.notes{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:28px}
+@media (max-width:860px){.notes{grid-template-columns:1fr}}
+.notes h2{font-size:22px;margin:0 0 6px;text-wrap:balance}
+.notes p{margin:0 0 12px;max-width:65ch}
+.notes dl{display:grid;grid-template-columns:minmax(0,8.5em) minmax(0,1fr);gap:8px 16px;margin:0}
+.notes dt{font-weight:700;font-size:14px}
+.notes dd{margin:0;font-size:15px;color:var(--muted)}
+@media (max-width:520px){.notes dl{grid-template-columns:1fr}}
+.kicker{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.callout{border-left:3px solid var(--accent);padding:4px 0 4px 14px;font-size:15px;color:var(--muted)}
+.callout strong{color:var(--fg)}
+
+/* ================= The Converge app inside the stage ================= */
+.stage{position:absolute;top:0;left:0;transform-origin:0 0;overflow:hidden;color:var(--n-fg);
+  font:16px/1.55 var(--f-text);background:radial-gradient(120% 70% at 50% 0%,var(--n-glow) 0%,var(--n-bg) 62%),var(--n-bg)}
+.stage *{box-sizing:border-box}
+.app{position:absolute;inset:0}
+#fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:10}
+.stage a{color:inherit}
+.stage :focus-visible{outline:2px solid var(--n-cyan);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wordmark{font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1;letter-spacing:.02em;color:var(--n-fg);background:none;border:0;padding:0;cursor:pointer}
+.wordmark .x{background:var(--n-gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tagline{margin:0;color:var(--n-muted)}
+.search{width:100%;font:inherit;font-size:17px;padding:14px 16px;border-radius:12px;border:2px solid var(--n-line);background:var(--n-panel);color:#fff}
+.search::placeholder{color:var(--n-muted);opacity:.8}
+.search:focus{outline:none;border-color:var(--n-cyan);box-shadow:0 0 0 4px rgba(92,242,255,.15)}
+.hint{margin:0;font-size:14px;color:var(--n-muted);min-height:1.5em}
+.poster{display:grid;place-items:center;aspect-ratio:2/3;border-radius:6px;flex-shrink:0;font-family:var(--f-display);font-weight:700;color:#fff;
+  background:linear-gradient(160deg,hsl(var(--h) 60% 52%),hsl(calc(var(--h) + 40) 55% 22%));max-width:100%}
+.back{font:inherit;font-size:14px;color:var(--n-muted);background:none;border:0;padding:6px 0;cursor:pointer}
+.back:hover{color:var(--n-fg);text-decoration:underline}
+.title{margin:0;font-family:var(--f-display);font-weight:500;line-height:1.2;text-wrap:balance}
+.details{margin:4px 0 0;color:var(--n-muted)}
+.summary{margin:0;font-family:var(--f-display);font-weight:500;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--n-cyan)}
+.loading{margin:0;color:var(--n-muted);padding:24px 4px}
+.empty{margin:0;font-size:16px;padding:8px 0}
+.groupTitle{margin:0;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--n-muted)}
+.group{display:flex;flex-direction:column;gap:8px}
+.offers{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.offer{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:4px 12px;padding:10px 12px;border-radius:14px;
+  background:var(--n-panel);border:1px solid var(--n-line);text-decoration:none}
+.offer:hover{background:var(--n-panel-hover)}
+.chip{grid-row:span 2;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;color:var(--n-bg);
+  background:hsl(var(--hue) 85% 62%);box-shadow:0 0 14px hsl(var(--hue) 90% 60% / .55)}
+.offer:not(:has(.meta)) .chip{grid-row:auto}
+.pname{font-weight:600;min-width:0;overflow-wrap:anywhere}
+.price{font-weight:700;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.meta{grid-column:2/4;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--n-cyan)}
+.bar{position:relative;flex:1;height:4px;border-radius:2px;overflow:hidden;background:rgba(255,255,255,.1)}
+.bar::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--w);border-radius:inherit;background:var(--n-gradient)}
+.quality{color:var(--n-muted)}
+.cheapest{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:4px;background:var(--n-gradient);color:var(--n-bg)}
+.footer{margin:6px 0 0;font-size:12px;color:var(--n-muted)}
+.toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);z-index:20;padding:10px 16px;border-radius:999px;font-size:14px;
+  background:rgba(10,15,31,.92);border:1px solid var(--n-line);color:var(--n-fg)}
+
+/* Result cards shared by the search screens */
+.res-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.res{display:flex;align-items:center;gap:14px;width:100%;text-align:left;font:inherit;color:inherit;background:none;border:1px solid transparent;padding:8px;border-radius:12px;cursor:pointer}
+.res:hover{background:var(--n-panel-hover)}
+.res[aria-current="true"]{background:var(--n-panel);border-color:var(--n-line);box-shadow:inset 3px 0 0 var(--n-cyan)}
+.res .poster{width:44px;font-size:13px}
+.res b{display:block;font-weight:600;line-height:1.25}
+.res small{display:block;font-size:14px;color:var(--n-muted)}
+.res-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:20px}
+.card{display:flex;flex-direction:column;gap:10px;width:100%;text-align:left;font:inherit;color:inherit;background:none;border:0;padding:8px;border-radius:14px;cursor:pointer}
+.card:hover{background:var(--n-panel-hover)}
+.card .poster{width:100%;font-size:26px;box-shadow:0 12px 30px -14px rgba(0,0,0,.7)}
+.card b{display:block;font-weight:600;line-height:1.25}
+.card small{display:block;font-size:14px;color:var(--n-muted)}
+
+/* ---- A. Split view ---- */
+.split{display:grid;grid-template-columns:400px minmax(0,1fr);height:100%}
+.side{display:flex;flex-direction:column;gap:18px;padding:40px 28px;overflow:auto;border-right:1px solid var(--n-line);background:rgba(4,7,18,.35)}
+.side form{display:flex;flex-direction:column;gap:8px}
+.pane{overflow:auto;padding:48px 56px 40px}
+.pane-inner{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+.split .head{display:flex;align-items:center;gap:24px}
+.split .head .poster{width:104px;font-size:28px}
+.split .title{font-size:30px}
+.split #region{display:flex;flex-direction:column;gap:22px;min-height:420px}
+.split .summary{text-align:left}
+.split .offers{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.placeholder{height:100%;display:grid;place-items:center;text-align:center;color:var(--n-muted)}
+.placeholder p{max-width:28ch;margin:0}
+
+/* ---- Top bar shared by B and C answer screens ---- */
+.scroll{height:100%;overflow:auto}
+.topbar{display:flex;align-items:center;gap:28px;padding:18px 48px;border-bottom:1px solid var(--n-line);background:rgba(4,7,18,.35)}
+.topbar .wordmark{font-size:26px}
+.topbar .search{width:380px;font-size:15px;padding:10px 14px}
+.topbar .back{margin-left:auto}
+.centre{max-width:1480px;margin:0 auto}
+
+/* ---- B/C search screen ---- */
+.home{max-width:1180px;margin:0 auto;padding:72px 48px 48px;display:flex;flex-direction:column;gap:28px}
+.home header{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.home .wordmark{font-size:56px}
+.home .tagline{font-size:18px}
+.home form{width:min(640px,100%);margin:0 auto;display:flex;flex-direction:column;gap:8px}
+.home .hint{text-align:center}
+
+/* ---- B. Lanes ---- */
+.lanes-hero{display:flex;align-items:flex-end;gap:28px;padding:32px 48px 8px}
+.lanes-hero .poster{width:112px;font-size:30px;box-shadow:0 16px 40px -18px rgba(0,0,0,.8)}
+.lanes-hero .title{font-size:34px}
+.lanes-app #region{padding:20px 48px 36px;min-height:460px;display:flex;flex-direction:column;gap:18px}
+.lanes{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:24px;align-items:start}
+.lane{display:flex;flex-direction:column;gap:18px;padding:18px;border-radius:18px;background:rgba(255,255,255,.025);border:1px solid var(--n-line)}
+.lanes-app .summary{text-align:center}
+
+/* ---- C. Board ---- */
+.board-body{display:grid;grid-template-columns:260px minmax(0,1fr);gap:56px;padding:36px 48px}
+.board-side{position:sticky;top:0;align-self:start;display:flex;flex-direction:column;gap:16px}
+.board-side .poster{width:100%;font-size:52px;box-shadow:0 20px 50px -20px rgba(0,0,0,.85)}
+.board-side .title{font-size:26px}
+.board-app #region{display:flex;flex-direction:column;gap:14px;min-height:460px}
+.board{width:100%;border-collapse:separate;border-spacing:0 8px;font-variant-numeric:tabular-nums}
+.board th{text-align:left;font-weight:600}
+.board thead th{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--n-muted);padding:0 14px}
+.board thead button{font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;background:none;border:0;padding:4px 0;cursor:pointer}
+.board thead [aria-sort="ascending"] button{color:var(--n-cyan)}
+.board tbody th,.board tbody td{background:var(--n-panel);border-block:1px solid var(--n-line);padding:0}
+.board tbody th{border-left:1px solid var(--n-line);border-radius:14px 0 0 14px;padding:10px 14px}
+.board tbody td:last-child{border-right:1px solid var(--n-line);border-radius:0 14px 14px 0}
+.rowhead{display:flex;align-items:center;gap:12px}
+.rowhead .chip{grid-row:auto}
+.cell{display:flex;align-items:center;gap:8px;padding:14px;text-decoration:none;min-height:56px;border-radius:10px}
+a.cell:hover{background:var(--n-panel-hover)}
+.cell .price{font-size:17px}
+.cell .tag{font-size:13px;font-weight:700;color:var(--n-cyan)}
+.dash{color:var(--n-muted);opacity:.5;padding:14px;display:block}
+.board .col-included{width:22%}.board .col-rent,.board .col-buy{width:24%}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Nexus on desktop: three layouts</h1>
+    <p class="lede">Today Nexus is a 520px column, centred on any screen. These three layouts take over from <strong>1025px wide</strong>, just above the largest common tablet breakpoint (iPad portrait 1024). Below that the current mobile design stays as it is. All three keep Converge and the Ignite snap; poster, title and year appear straight away, only the services are revealed. Click around: search, pick a movie, follow a service. <strong>Sample data, not real availability.</strong></p>
+  </header>
+
+  <div class="controls">
+    <div class="tabs" role="tablist" aria-label="Layout">
+      <button role="tab" id="tab-split" aria-selected="true" data-layout="split">A · Split view</button>
+      <button role="tab" id="tab-lanes" aria-selected="false" data-layout="lanes">B · Lanes</button>
+      <button role="tab" id="tab-board" aria-selected="false" data-layout="board">C · Board</button>
+    </div>
+    <div class="opts">
+      <label for="opt-width">Screen
+        <select id="opt-width">
+          <option value="1280x800">1280 × 800 laptop</option>
+          <option value="1440x900" selected>1440 × 900</option>
+          <option value="1920x1080">1920 × 1080 monitor</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="opt-slow"> Slow provider</label>
+      <label><input type="checkbox" id="opt-reduced"> Reduced motion</label>
+      <button type="button" id="replay-fresh">Replay discovery</button>
+      <button type="button" id="replay-cached">Replay Ignite</button>
+      <button type="button" id="fullscreen">Full screen</button>
+    </div>
+  </div>
+
+  <div class="frame" id="frame" role="tabpanel" aria-labelledby="tab-split">
+    <div class="stage" id="stage">
+      <div class="app" id="app"></div>
+      <canvas id="fx" aria-hidden="true"></canvas>
+      <p class="vh" role="status" aria-live="polite" id="announce"></p>
+    </div>
+  </div>
+  <p class="memo">Scaled to fit. Use Full screen to see it at your screen's real size. The first time you open a movie you get Discovery; open it again and Nexus has seen it, so you get Ignite. Try searching "matrix", "parasite", "jönsson" or "animatrix" (not in Sweden).</p>
+
+  <section class="notes" id="notes" aria-live="polite"></section>
+</div>
+
+<script>
+/* ---------------- Sample data (prototype only) ---------------- */
+const MOVIES = [
+  { id:"matrix", title:"The Matrix", year:1999, hue:330, offers:[
+    ["subscription","Netflix",null,"4K"],["subscription","Max",null,"HD"],
+    ["rent","Amazon",39,"4K"],["rent","Apple TV",39,"4K"],["rent","Blockbuster",39,"HD"],["rent","Rakuten TV",39,"4K"],["rent","SF Anytime",49,"HD"],["rent","Viaplay",49,"HD"],
+    ["buy","Amazon",99,"4K"],["buy","Apple TV",99,"4K"],["buy","Blockbuster",99,"HD"],["buy","Rakuten TV",99,"4K"],["buy","Viaplay",109,"HD"],["buy","SF Anytime",119,"HD"] ]},
+  { id:"reloaded", title:"The Matrix Reloaded", year:2003, hue:150, offers:[
+    ["rent","Apple TV",39,"4K"],["rent","SF Anytime",45,"HD"],["rent","Amazon",49,"4K"],["buy","Apple TV",99,"4K"],["buy","Amazon",129,"4K"] ]},
+  { id:"revolutions", title:"The Matrix Revolutions", year:2003, hue:200, offers:[
+    ["subscription","Max",null,"HD"],["buy","Apple TV",99,"4K"] ]},
+  { id:"resurrections", title:"The Matrix Resurrections", year:2021, hue:270, offers:[
+    ["subscription","Max",null,"4K"],["rent","Apple TV",49,"4K"],["rent","SF Anytime",49,"HD"],["buy","Apple TV",149,"4K"],["buy","SF Anytime",159,"HD"] ]},
+  { id:"animatrix", title:"The Animatrix", year:2003, hue:20, offers:[] },
+  { id:"parasite", title:"Parasite", original:"Gisaengchung", year:2019, hue:95, offers:[
+    ["subscription","Viaplay",null,"HD"],["rent","SF Anytime",39,"HD"],["rent","Apple TV",45,"4K"],["buy","Apple TV",129,"4K"] ]},
+  { id:"jonsson", title:"Varning för Jönssonligan", year:1981, hue:45, offers:[
+    ["free","SVT Play",null,"HD"],["subscription","Viaplay",null,"HD"],["rent","SF Anytime",29,"HD"],["buy","SF Anytime",79,"HD"] ]},
+  { id:"jonsson2", title:"Jönssonligan på Mallorca", year:1989, hue:60, offers:[
+    ["subscription","Viaplay",null,"HD"],["rent","SF Anytime",29,"HD"],["rent","Apple TV",35,"HD"] ]},
+];
+const ORDER = ["subscription","free","rent","buy"];
+const LABEL = { subscription:"Included with subscription", free:"Free", rent:"Rent", buy:"Buy" };
+
+function groupsFor(movie){
+  const groups = [];
+  for (const type of ORDER){
+    const offers = movie.offers.filter(o => o[0] === type)
+      .map(([t,name,price,quality]) => ({ type:t, name, price, quality }));
+    if (offers.length === 0) continue;
+    offers.sort((a,b) => (a.price ?? 0) - (b.price ?? 0));
+    groups.push({ type, offers });
+  }
+  return groups;
+}
+function lowestAndHighest(group){
+  const prices = group.offers.map(o => o.price).filter(p => p !== null);
+  return { low: Math.min(...prices), high: Math.max(...prices) };
+}
+/* Cheapest tag: every offer tied at the lowest price, none if all prices are equal. */
+function isCheapest(offer, group){
+  if (offer.price === null) return false;
+  const { low, high } = lowestAndHighest(group);
+  if (low === high) return false;
+  return offer.price === low;
+}
+function barPercent(offer, group){
+  const { high } = lowestAndHighest(group);
+  return Math.round((offer.price / high) * 100);
+}
+function priceLabel(offer){
+  if (offer.price !== null) return offer.price + " kr";
+  if (offer.type === "free") return "Free";
+  return "Included";
+}
+function services(groups){ const s = new Set(); groups.forEach(g => g.offers.forEach(o => s.add(o.name))); return s.size; }
+function summaryText(groups){
+  const n = services(groups);
+  if (n === 0) return "Not streaming in Sweden";
+  if (n === 1) return "On 1 service in Sweden";
+  return `On ${n} services in Sweden`;
+}
+function hueFor(name){ let h = 0; for (const c of name) h = (h * 31 + c.charCodeAt(0)) % 360; return h; }
+function initials(name){ return name.split(/\s+/).filter(w => /[A-ZÅÄÖ]/.test(w[0])).map(w => w[0]).join("").slice(0,2) || name[0]; }
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function fold(s){ return s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase(); }
+function search(q){ const f = fold(q.trim()); if (f.length < 2) return null; return MOVIES.filter(m => fold(m.title).includes(f) || (m.original && fold(m.original).includes(f))); }
+function detailLine(m){ const d = [m.year]; if (m.original) d.push(m.original); return d.join(" · "); }
+function byId(id){ return MOVIES.find(m => m.id === id); }
+
+/* ---------------- State ---------------- */
+const state = { layout:"split", query:"matrix", selectedId:"matrix", view:"answer", status:"loading", boardSort:"best" };
+const seen = new Set();
+let loadTimer = 0, loadStart = 0;
+const $ = sel => document.querySelector(sel);
+const stage = $("#stage"), app = $("#app"), canvas = $("#fx"), frame = $("#frame");
+let W = 1440, H = 900, scale = 1;
+
+/* ---------------- Shared markup ---------------- */
+const wordmark = `<button class="wordmark" data-home type="button" aria-label="nexus, new search">ne<span class="x">x</span>us</button>`;
+function posterHTML(m, cls=""){ return `<span class="poster ${cls}" style="--h:${m.hue}" aria-hidden="true">${esc(m.title.replace(/^The /,"")[0])}</span>`; }
+
+function hintText(){
+  const q = state.query.trim();
+  if (q.length === 0) return "Type a movie title, in Swedish or the original language.";
+  const r = search(q);
+  if (r === null) return "Type at least 2 letters.";
+  if (r.length === 0) return `No movies match “${esc(q)}”. Check the spelling or try another title.`;
+  return r.length === 1 ? "1 movie found." : `${r.length} movies found.`;
+}
+function resultsHTML(kind){
+  const r = search(state.query) || [];
+  if (kind === "list"){
+    return r.map(m => `<li><button type="button" class="res" data-pick="${m.id}" aria-current="${m.id === state.selectedId}">${posterHTML(m)}<span><b>${esc(m.title)}</b><small>${esc(detailLine(m))}</small></span></button></li>`).join("");
+  }
+  return r.map(m => `<li><button type="button" class="card" data-pick="${m.id}">${posterHTML(m)}<span><b>${esc(m.title)}</b><small>${esc(detailLine(m))}</small></span></button></li>`).join("");
+}
+function searchForm(id, extraClass=""){
+  return `<form role="search" onsubmit="return false"><label for="${id}" class="vh">Movie title</label>
+    <input id="${id}" class="search ${extraClass}" type="search" value="${esc(state.query)}" placeholder="Search for a movie" autocomplete="off" spellcheck="false" aria-describedby="${id}-hint">
+    <p class="hint" id="${id}-hint"><span role="status" aria-live="polite" data-hint>${hintText()}</span></p></form>`;
+}
+
+function offerRow(o, g){
+  const hue = hueFor(o.name);
+  const paid = o.price !== null;
+  const meta = paid ? `<span class="meta"><span class="bar" style="--w:${barPercent(o,g)}%" aria-hidden="true"></span>${o.quality ? `<span class="quality">${o.quality}</span>` : ""}${isCheapest(o,g) ? `<span class="cheapest">Cheapest</span>` : ""}</span>` : "";
+  return `<li data-reveal="offer" data-hue="${hue}"><a class="offer" href="#" data-offer="${esc(o.name)}">
+    <span class="chip" style="--hue:${hue}" aria-hidden="true">${esc(initials(o.name))}</span>
+    <span class="pname" data-decode>${esc(o.name)}</span><span class="price" data-decode>${priceLabel(o)}</span>${meta}
+    <span class="vh"> (opens ${esc(o.name)} in a new tab)</span></a></li>`;
+}
+function groupHTML(g){
+  return `<section class="group" aria-labelledby="g-${g.type}"><h2 id="g-${g.type}" class="groupTitle" data-reveal="heading" data-decode>${LABEL[g.type]}</h2>
+    <ul class="offers">${g.offers.map(o => offerRow(o,g)).join("")}</ul></section>`;
+}
+const footerHTML = `<p class="footer" data-reveal="footer">Checked just now · Streaming data from <a href="https://www.watchmode.com/" target="_blank" rel="noopener noreferrer">Watchmode</a></p>`;
+function summaryHTML(groups){
+  let html = `<p class="summary" data-reveal="heading" data-decode>${summaryText(groups)}</p>`;
+  if (groups.length === 0) html += `<p class="empty" data-reveal="heading">You can’t stream, rent or buy this movie in Sweden right now.</p>`;
+  return html;
+}
+
+/* ---------------- A. Split view ---------------- */
+function splitHTML(){
+  const m = byId(state.selectedId);
+  let pane = `<div class="placeholder"><p>Pick a movie on the left to see where it streams in Sweden.</p></div>`;
+  if (m && state.view === "answer"){
+    pane = `<div class="pane-inner"><header class="head">${posterHTML(m)}<div><h1 class="title">${esc(m.title)}</h1><p class="details">${esc(detailLine(m))}</p></div></header>
+      <div id="region" aria-busy="true" data-nexus>${regionBody()}</div></div>`;
+  }
+  return `<div class="split"><aside class="side">${wordmark}<p class="tagline">Where can I stream this?</p>${searchForm("q")}
+      <ul class="res-list" id="results" aria-label="Search results">${resultsHTML("list")}</ul></aside>
+    <main class="pane" id="pane">${pane}</main></div>`;
+}
+function splitBody(groups){ return summaryHTML(groups) + groups.map(groupHTML).join("") + footerHTML; }
+
+/* ---------------- B/C search screen ---------------- */
+function homeHTML(){
+  return `<div class="scroll"><div class="home"><header>${wordmark}<p class="tagline">Where can I stream this?</p></header>${searchForm("q")}
+    <ul class="res-grid" id="results" aria-label="Search results">${resultsHTML("grid")}</ul></div></div>`;
+}
+function topbarHTML(){
+  return `<header class="topbar">${wordmark}<form role="search" onsubmit="return false"><label for="q-top" class="vh">Search for another movie</label>
+    <input id="q-top" class="search" type="search" value="" placeholder="Search for another movie" autocomplete="off"></form>
+    <button class="back" type="button" data-back>← Back to results</button></header>`;
+}
+
+/* ---------------- B. Lanes ---------------- */
+function lanesHTML(){
+  if (state.view === "search") return homeHTML();
+  const m = byId(state.selectedId);
+  return `<div class="scroll lanes-app">${topbarHTML()}<div class="centre">
+    <header class="lanes-hero">${posterHTML(m)}<div><h1 class="title">${esc(m.title)}</h1><p class="details">${esc(detailLine(m))}</p></div></header>
+    <div id="region" aria-busy="true" data-nexus>${regionBody()}</div></div></div>`;
+}
+function lanesBody(groups){
+  const included = groups.filter(g => g.type === "subscription" || g.type === "free");
+  const lanes = [];
+  if (included.length) lanes.push(included);
+  groups.filter(g => g.type === "rent" || g.type === "buy").forEach(g => lanes.push([g]));
+  const lanesMarkup = lanes.length ? `<div class="lanes" style="--cols:${lanes.length}">${lanes.map(l => `<div class="lane">${l.map(groupHTML).join("")}</div>`).join("")}</div>` : "";
+  return summaryHTML(groups) + lanesMarkup + footerHTML;
+}
+
+/* ---------------- C. Board ---------------- */
+function boardHTML(){
+  if (state.view === "search") return homeHTML();
+  const m = byId(state.selectedId);
+  return `<div class="scroll board-app">${topbarHTML()}<div class="centre board-body">
+    <aside class="board-side">${posterHTML(m)}<div><h1 class="title">${esc(m.title)}</h1><p class="details">${esc(detailLine(m))}</p></div></aside>
+    <div id="region" aria-busy="true" data-nexus>${regionBody()}</div></div></div>`;
+}
+function boardBody(groups){
+  if (groups.length === 0) return summaryHTML(groups) + footerHTML;
+  // One row per service, one column per kind of offer.
+  const rows = new Map();
+  for (const g of groups){
+    for (const o of g.offers){
+      const column = (g.type === "free") ? "subscription" : g.type;
+      if (!rows.has(o.name)) rows.set(o.name, { name:o.name });
+      rows.get(o.name)[column] = { offer:o, group:g };
+    }
+  }
+  const columns = ["subscription","rent","buy"].filter(c => groups.some(g => g.type === c || (c === "subscription" && g.type === "free")));
+  const rowList = [...rows.values()];
+  const priceOf = (row, col) => row[col] ? row[col].offer.price : Infinity;
+  if (state.boardSort === "rent" || state.boardSort === "buy"){
+    rowList.sort((a,b) => priceOf(a,state.boardSort) - priceOf(b,state.boardSort) || a.name.localeCompare(b.name));
+  } else {
+    // Best option first: included or free, then cheapest rent, then cheapest buy.
+    rowList.sort((a,b) => (b.subscription ? 1 : 0) - (a.subscription ? 1 : 0) || priceOf(a,"rent") - priceOf(b,"rent") || priceOf(a,"buy") - priceOf(b,"buy") || a.name.localeCompare(b.name));
+  }
+  const colTitle = { subscription:"Included or free", rent:"Rent", buy:"Buy" };
+  const head = columns.map(c => {
+    if (c === "subscription") return `<th scope="col" class="col-included">${colTitle[c]}</th>`;
+    const sorted = state.boardSort === c;
+    return `<th scope="col" class="col-${c}" aria-sort="${sorted ? "ascending" : "none"}"><button type="button" data-sort="${c}">${colTitle[c]}${sorted ? " ↑" : ""}</button></th>`;
+  }).join("");
+  const body = rowList.map(row => {
+    const hue = hueFor(row.name);
+    const cells = columns.map(c => {
+      const entry = row[c];
+      if (!entry) return `<td><span class="dash" data-reveal="filler" aria-label="Not offered">—</span></td>`;
+      const o = entry.offer, g = entry.group;
+      let extra = o.quality ? `<span class="quality">${o.quality}</span>` : "";
+      if (isCheapest(o,g)) extra += `<span class="cheapest">Cheapest</span>`;
+      const label = (o.price === null) ? `<span class="tag" data-decode>${priceLabel(o)}</span>` : `<span class="price" data-decode>${priceLabel(o)}</span>`;
+      return `<td><a class="cell" href="#" data-offer="${esc(o.name)}" data-reveal="offer" data-hue="${hue}">${label}${extra}<span class="vh"> on ${esc(o.name)} (opens in a new tab)</span></a></td>`;
+    }).join("");
+    return `<tr><th scope="row"><span class="rowhead" data-reveal="rowhead"><span class="chip" style="--hue:${hue}" aria-hidden="true">${esc(initials(row.name))}</span><span class="pname" data-decode>${esc(row.name)}</span></span></th>${cells}</tr>`;
+  }).join("");
+  return summaryHTML(groups) + `<table class="board"><caption class="vh">Where to watch in Sweden, by service</caption><thead><tr><th scope="col">Service</th>${head}</tr></thead><tbody>${body}</tbody></table>` + footerHTML;
+}
+
+/* ---------------- Render ---------------- */
+function regionBody(){
+  if (state.status === "loading") return `<p class="loading">Finding where to stream…</p>`;
+  const groups = groupsFor(byId(state.selectedId));
+  if (state.layout === "lanes") return lanesBody(groups);
+  if (state.layout === "board") return boardBody(groups);
+  return splitBody(groups);
+}
+function render(){
+  if (state.layout === "lanes") app.innerHTML = lanesHTML();
+  else if (state.layout === "board") app.innerHTML = boardHTML();
+  else app.innerHTML = splitHTML();
+}
+
+function openMovie(id, { forceFresh=false, forceCached=false } = {}){
+  stopReveal();
+  clearTimeout(loadTimer);
+  if (forceFresh) seen.delete(id);
+  if (forceCached) seen.add(id);
+  const cached = seen.has(id);
+  state.selectedId = id; state.view = "answer"; state.status = "loading";
+  render();
+  $("#announce").textContent = "";
+  loadStart = performance.now();
+  if (!cached && !reduced()) R.discovery = startDiscovery(nexusPoint());
+  let delay = 40;
+  if (!cached) delay = $("#opt-slow").checked ? 1800 : 650;
+  loadTimer = setTimeout(() => {
+    state.status = "ready";
+    seen.add(id);
+    const region = $("#region");
+    if (!region) return;
+    region.innerHTML = regionBody();
+    revealAnswer(cached);
+  }, delay);
+}
+
+/* ---------------- Events inside the app ---------------- */
+let toastTimer = 0;
+function toast(text){
+  let t = stage.querySelector(".toast");
+  if (!t){ t = document.createElement("div"); t.className = "toast"; stage.appendChild(t); }
+  t.textContent = text;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.remove(), 1800);
+}
+app.addEventListener("click", e => {
+  const pick = e.target.closest("[data-pick]");
+  if (pick){ openMovie(pick.dataset.pick); return; }
+  const offer = e.target.closest("[data-offer]");
+  if (offer){ e.preventDefault(); toast(`Opens ${offer.dataset.offer} in a new tab`); return; }
+  if (e.target.closest("[data-back]")){ stopReveal(); state.view = "search"; render(); return; }
+  if (e.target.closest("[data-home]")){ stopReveal(); state.query = ""; state.view = "search"; if (state.layout === "split") state.selectedId = null; render(); $("#q")?.focus(); return; }
+  const sort = e.target.closest("[data-sort]");
+  if (sort){
+    state.boardSort = (state.boardSort === sort.dataset.sort) ? "best" : sort.dataset.sort;
+    $("#region").innerHTML = regionBody();
+  }
+});
+app.addEventListener("input", e => {
+  if (e.target.id !== "q") return;
+  state.query = e.target.value;
+  $("#results").innerHTML = resultsHTML(state.layout === "split" ? "list" : "grid");
+  app.querySelector("[data-hint]").innerHTML = hintText();
+});
+app.addEventListener("focusin", e => {
+  if (e.target.id !== "q-top") return;
+  stopReveal();
+  state.view = "search"; render();
+  const input = $("#q"); input.focus(); input.setSelectionRange(input.value.length, input.value.length);
+});
+
+/* ---------------- Converge reveal (ported from src/ui/reveal) ---------------- */
+const R = { discovery:null, finish:null };
+const CYAN = "92, 242, 255", MAGENTA = "255, 92, 207";
+const easeOut = p => 1 - Math.pow(1 - Math.min(1, Math.max(0, p)), 3);
+const rand = (a,b) => a + Math.random() * (b - a);
+function reduced(){ return $("#opt-reduced").checked || matchMedia("(prefers-reduced-motion: reduce)").matches; }
+function curve(s,c,e,p){ const r = 1 - p; return { x:r*r*s.x + 2*r*p*c.x + p*p*e.x, y:r*r*s.y + 2*r*p*c.y + p*p*e.y }; }
+function edgePoint(){ const e = Math.floor(Math.random()*4); if (e === 0) return {x:Math.random()*W,y:-30}; if (e === 1) return {x:W+30,y:Math.random()*H}; if (e === 2) return {x:Math.random()*W,y:H+30}; return {x:-30,y:Math.random()*H}; }
+function toStage(el){ const r = el.getBoundingClientRect(), s = stage.getBoundingClientRect(); return { left:(r.left-s.left)/scale, top:(r.top-s.top)/scale, width:r.width/scale, height:r.height/scale }; }
+/* The nexus point: the centre of the visible part of the answer area. */
+function nexusPoint(){
+  const el = $("[data-nexus]");
+  if (!el) return { x:W/2, y:H/2 };
+  const b = toStage(el);
+  const top = Math.max(b.top, 0), bottom = Math.min(b.top + b.height, H);
+  return { x:b.left + b.width/2, y:(top + bottom)/2 };
+}
+function targetPoint(el){
+  const chip = el.querySelector(".chip");
+  const b = toStage(chip || el);
+  return { x:b.left + b.width/2, y:Math.min(b.top + b.height/2, H + 20) };
+}
+function prepareCanvas(){
+  const ctx = canvas.getContext("2d"); if (!ctx) return null;
+  const pr = Math.min(window.devicePixelRatio || 1, 2) * Math.max(scale, .5);
+  canvas.width = Math.round(W*pr); canvas.height = Math.round(H*pr);
+  canvas.style.opacity = "1";
+  ctx.setTransform(pr,0,0,pr,0,0); ctx.clearRect(0,0,W,H);
+  return ctx;
+}
+function clearCanvas(){ const ctx = canvas.getContext("2d"); ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,canvas.width,canvas.height); }
+
+function startDiscovery(nexus){
+  const ctx = prepareCanvas();
+  const streams = []; const t0 = performance.now();
+  let current = nexus, moveFrom = nexus, moveTo = nexus, moveStart = 0, gathering = true, flyOut = Infinity, lastSpawn = -Infinity, energy = 0, frameId = 0, stopped = false, whenLanded = null;
+  const progressOf = (s, now) => s.catchUp ? s.catchUp.from + (1 - s.catchUp.from) * easeOut((now - s.catchUp.start)/100) : easeOut((now - s.start)/s.dur);
+  function drawStream(s, p){
+    const tail0 = Math.max(0, p - s.tail);
+    for (let i = 1; i <= 14; i++){
+      const a = curve(s.from, s.ctrl, s.to, tail0 + (p - tail0)*(i-1)/14), b = curve(s.from, s.ctrl, s.to, tail0 + (p - tail0)*i/14), k = i/14;
+      ctx.strokeStyle = `hsla(${s.hue},95%,65%,${k})`; ctx.lineWidth = 1 + 2.5*k;
+      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+    }
+    const h = curve(s.from, s.ctrl, s.to, p);
+    ctx.fillStyle = `hsl(${s.hue},100%,85%)`; ctx.beginPath(); ctx.arc(h.x,h.y,3,0,Math.PI*2); ctx.fill();
+  }
+  function drawNexus(t, bright){
+    if (bright <= 0) return;
+    const r = (8 + Math.min(energy,10)*2 + Math.sin(t/60)*2) * 3 * bright;
+    const g = ctx.createRadialGradient(current.x,current.y,0,current.x,current.y,r);
+    g.addColorStop(0,"rgba(255,255,255,.95)"); g.addColorStop(.3,`rgba(${CYAN},.6)`); g.addColorStop(1,`rgba(${MAGENTA},0)`);
+    ctx.globalAlpha = bright; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(current.x,current.y,r,0,Math.PI*2); ctx.fill(); ctx.globalAlpha = 1;
+  }
+  function frame(now){
+    if (stopped) return;
+    if (gathering && now - lastSpawn >= 100){
+      lastSpawn = now;
+      const from = edgePoint();
+      streams.push({ from, ctrl:{ x:(from.x+current.x)/2 + rand(-120,120), y:(from.y+current.y)/2 + rand(-120,120) }, to:current, hue:rand(170,330), start:now, dur:rand(495,765), tail:.35, target:null, arrived:false, catchUp:null });
+    }
+    const mp = easeOut((now - moveStart)/145);
+    current = { x:moveFrom.x + (moveTo.x - moveFrom.x)*mp, y:moveFrom.y + (moveTo.y - moveFrom.y)*mp };
+    ctx.clearRect(0,0,W,H); ctx.globalCompositeOperation = "lighter";
+    let moving = 0;
+    for (const s of streams){
+      const p = progressOf(s, now);
+      if (p <= 0){ moving++; continue; }
+      if (p >= 1){ if (!s.arrived){ s.arrived = true; if (s.target) s.target.onArrive(); else energy++; } continue; }
+      moving++; drawStream(s, p);
+    }
+    drawNexus(now - t0, 1 - easeOut((now - flyOut)/180));
+    ctx.globalCompositeOperation = "source-over";
+    if (whenLanded && moving === 0){ const done = whenLanded; whenLanded = null; done(); return; }
+    frameId = requestAnimationFrame(frame);
+  }
+  function stop(){ stopped = true; cancelAnimationFrame(frameId); clearCanvas(); }
+  function resolve(answerNexus, targets, onDone){
+    const now = performance.now(); gathering = false;
+    for (const s of streams) if (!s.arrived) s.catchUp = { start:now, from:progressOf(s, now) };
+    flyOut = now + 72; moveFrom = current; moveTo = answerNexus; moveStart = now;
+    targets.forEach((t, i) => streams.push({ from:answerNexus, ctrl:{ x:answerNexus.x + rand(-40,40), y:t.point.y }, to:t.point, hue:t.hue, start:now + 72 + Math.min(i*40, 270), dur:415, tail:.25, target:t, arrived:false, catchUp:null }));
+    whenLanded = () => {
+      const fade = canvas.animate([{opacity:1},{opacity:0}], { duration:200, fill:"forwards" });
+      fade.onfinish = () => { clearCanvas(); fade.cancel(); if (stopped) return; stopped = true; onDone(); };
+    };
+  }
+  if (!ctx) return { resolve:(n,t,d) => { t.forEach(x => x.onArrive()); d(); }, stop(){} };
+  frameId = requestAnimationFrame(frame);
+  return { resolve, stop };
+}
+
+function playIgnite(region, onDone){
+  const summary = region.querySelector('[data-reveal="heading"]');
+  const box = toStage(region), s = summary ? toStage(summary) : box;
+  const lineY = s.top + s.height/2, cx = box.left + box.width/2;
+  const fromTop = Math.max(0, lineY - box.top), fromBottom = Math.max(0, box.height - fromTop - 2);
+  const closed = `inset(${fromTop}px 0 ${fromBottom}px 0)`;
+  const opening = region.animate([{ clipPath:closed, filter:"brightness(1.8)" },{ clipPath:closed, filter:"brightness(1.8)", offset:.25 },{ clipPath:"inset(0 0 0 0)", filter:"none" }], { duration:240, easing:"cubic-bezier(.2,.8,.2,1)" });
+  const ctx = prepareCanvas(); const t0 = performance.now(); let id = 0, done = false;
+  function finish(){ if (done) return; done = true; cancelAnimationFrame(id); opening.cancel(); clearCanvas(); onDone(); }
+  function frame(now){
+    if (done || !ctx) return;
+    const t = now - t0, grow = Math.min(1, t/70), fade = Math.max(0, 1 - (t - 60)/170);
+    ctx.clearRect(0,0,W,H);
+    const g = ctx.createLinearGradient(box.left,0,box.left + box.width,0);
+    g.addColorStop(0,`rgba(${CYAN},0)`); g.addColorStop(.25,`rgb(${CYAN})`); g.addColorStop(.5,"#fff"); g.addColorStop(.75,`rgb(${MAGENTA})`); g.addColorStop(1,`rgba(${MAGENTA},0)`);
+    const lw = box.width * grow;
+    ctx.globalAlpha = fade; ctx.fillStyle = g; ctx.fillRect(cx - lw/2, lineY - 1.5, lw, 3);
+    ctx.globalAlpha = fade*.5; ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(cx, lineY, 6 + 10*grow, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1;
+    if (t > 240){ finish(); return; }
+    id = requestAnimationFrame(frame);
+  }
+  id = requestAnimationFrame(frame);
+  return finish;
+}
+
+const GLYPHS = "01<>/\\";
+function decodeText(elements){
+  const texts = [];
+  for (const el of elements){ const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let n; while ((n = w.nextNode())) texts.push({ node:n, final:n.nodeValue }); }
+  const t0 = performance.now(); let last = 0, id = 0, done = false;
+  function finish(){ if (done) return; done = true; cancelAnimationFrame(id); texts.forEach(t => t.node.nodeValue = t.final); }
+  function frame(now){
+    if (done) return;
+    if (now - last >= 45){
+      last = now; const settled = Math.floor((now - t0)/20); let all = true;
+      for (const t of texts){
+        let out = ""; for (let i = 0; i < t.final.length; i++){ const c = t.final[i]; out += (i < settled || c === " ") ? c : GLYPHS[Math.floor(Math.random()*GLYPHS.length)]; }
+        t.node.nodeValue = out; if (out !== t.final) all = false;
+      }
+      if (all){ finish(); return; }
+    }
+    id = requestAnimationFrame(frame);
+  }
+  frame(t0);
+  return { finish };
+}
+function showPop(el){ el.style.visibility = ""; el.animate([{opacity:0,transform:"scale(.97)"},{opacity:1,transform:"none"}], { duration:180, easing:"ease-out" }); }
+function showFade(el){ el.style.visibility = ""; el.animate([{opacity:0},{opacity:1}], { duration:200 }); }
+
+function stopReveal(){
+  if (R.finish) R.finish();
+  if (R.discovery){ R.discovery.stop(); R.discovery = null; }
+}
+function announce(){
+  const m = byId(state.selectedId);
+  if (m) $("#announce").textContent = `${m.title}: ${summaryText(groupsFor(m))}.`;
+}
+function revealAnswer(cached){
+  const region = $("#region");
+  const hidden = [...region.querySelectorAll("[data-reveal]")];
+  const decodes = [], cleanups = []; let finished = false;
+  function finish(){
+    if (finished) return; finished = true; R.finish = null;
+    if (R.discovery){ R.discovery.stop(); R.discovery = null; }
+    cleanups.forEach(f => f()); decodes.forEach(d => d.finish());
+    hidden.forEach(el => el.style.visibility = "");
+    stage.removeEventListener("pointerdown", finish, true); window.removeEventListener("keydown", finish, true);
+    region.setAttribute("aria-busy","false"); announce();
+  }
+  R.finish = finish;
+  stage.addEventListener("pointerdown", finish, true); window.addEventListener("keydown", finish, true);
+
+  if (reduced()){ const a = region.animate([{opacity:0},{opacity:1}], { duration:150 }); a.onfinish = finish; cleanups.push(() => a.cancel()); return; }
+  if (cached){ if (R.discovery){ R.discovery.stop(); R.discovery = null; } cleanups.push(playIgnite(region, finish)); return; }
+
+  hidden.forEach(el => el.style.visibility = "hidden");
+  const wait = Math.max(0, 450 - (performance.now() - loadStart));
+  const timer = setTimeout(fanOut, wait); cleanups.push(() => clearTimeout(timer));
+  function fanOut(){
+    const d = R.discovery; if (!d){ finish(); return; }
+    const headings = hidden.filter(el => el.dataset.reveal === "heading");
+    headings.forEach(showFade); decodes.push(decodeText(headings.filter(el => el.hasAttribute("data-decode"))));
+    const targets = hidden.filter(el => el.dataset.reveal === "offer").map(el => ({
+      point: targetPoint(el),
+      hue: Number(el.dataset.hue),
+      onArrive(){
+        showPop(el);
+        const rowHead = el.closest("tr")?.querySelector('[data-reveal="rowhead"]');
+        let decodeIn = [...el.querySelectorAll("[data-decode]")];
+        if (rowHead && rowHead.style.visibility === "hidden"){ showPop(rowHead); decodeIn = decodeIn.concat([...rowHead.querySelectorAll("[data-decode]")]); }
+        decodes.push(decodeText(decodeIn));
+      }
+    }));
+    d.resolve(nexusPoint(), targets, () => {
+      hidden.filter(el => el.style.visibility === "hidden").forEach(showFade);
+      finish();
+    });
+  }
+}
+
+/* ---------------- Page controls, sizing, notes ---------------- */
+const NOTES = {
+  split: `<div><p class="kicker">Option A</p><h2>Split view: search stays beside the answer</h2>
+    <p>The left column is the whole search screen, always there. The right is the answer for the movie you picked. Picking another result swaps the answer without going back, so comparing The Matrix with Reloaded is one click each. Converge plays in the answer pane: streams pour in from the screen edges and meet in the middle of the pane, then fly out to each service.</p>
+    <p>Offer rows sit in a two-column grid inside each group, so Rent and Buy for The Matrix fit on one laptop screen.</p></div>
+    <dl><dt>Uses the space for</dt><dd>Fewer clicks: search and answer on one screen.</dd>
+    <dt>Good at</dt><dd>Picking between similar titles, correcting a wrong pick, keyboard use (type, Tab, Enter).</dd>
+    <dt>Trade-offs</dt><dd>Two-column rows read left-right then down, so "cheapest first" is a bit less obvious than one list. The answer pane is empty until you pick something.</dd>
+    <dt>Build effort</dt><dd>Medium. Search and answer become one page on desktop, but are separate pages on phones.</dd></dl>`,
+  lanes: `<div><p class="kicker">Option B</p><h2>Lanes: the answer side by side</h2>
+    <p>The same answer as on the phone, but the groups stand next to each other: Included (with Free), Rent and Buy, each its own lane, cheapest first. On a laptop the whole answer fits without scrolling. The nexus point sits in the middle of the lane area and streams fan out sideways and down into the lanes.</p>
+    <p>Search becomes a centred page with poster cards, which makes similar titles easy to tell apart. A search field in the top bar takes you back to it.</p></div>
+    <dl><dt>Uses the space for</dt><dd>Seeing every option at once, without scrolling.</dd>
+    <dt>Good at</dt><dd>Keeps the phone's grouping and sort order exactly, so one mental model on every device.</dd>
+    <dt>Trade-offs</dt><dd>A movie with only one or two groups leaves wide lanes (try Revolutions). Same number of clicks as on the phone.</dd>
+    <dt>Build effort</dt><dd>Small. Mostly a desktop stylesheet over the existing answer markup.</dd></dl>`,
+  board: `<div><p class="kicker">Option C</p><h2>Board: services in rows, prices in columns</h2>
+    <p>A comparison table: one row per service, columns for Included or free, Rent and Buy. You can read "Amazon: rent 39 kr, buy 99 kr" along a row, or run down a column for the cheapest. Each stream lands on its own cell, so the board lights up cell by cell. Click Rent or Buy to sort by that column.</p>
+    <p>The poster sits large on the left, static from the first moment.</p></div>
+    <dl><dt>Uses the space for</dt><dd>Comparing one service's offers at a glance.</dd>
+    <dt>Good at</dt><dd>Movies on many services, and answering "is it cheaper to rent or buy here?".</dd>
+    <dt>Trade-offs</dt><dd>Breaks the Included / Rent / Buy grouping the phone uses, so only one column can be cheapest-first at a time. Denser and more "spreadsheet", less playful.</dd>
+    <dt>Build effort</dt><dd>Medium. A new table view of the same data, alongside the phone list.</dd></dl>`,
+};
+const RECOMMENDATION = `<p class="callout"><strong>My pick: B, Lanes.</strong> It answers the question fastest on a big screen, keeps the phone's grouping and cheapest-first order, and is the smallest change to build. A's always-visible search is a good idea we could add to B later if picking the wrong title turns out to be common.</p>`;
+
+function fit(){
+  const full = document.fullscreenElement === frame;
+  if (full){ W = window.innerWidth; H = window.innerHeight; scale = 1; }
+  else {
+    const [w,h] = $("#opt-width").value.split("x").map(Number); W = w; H = h;
+    scale = Math.min(1, frame.clientWidth / W);
+    frame.style.height = Math.round(H*scale) + "px";
+  }
+  stage.style.width = W + "px"; stage.style.height = H + "px"; stage.style.transform = `scale(${scale})`;
+}
+function setLayout(layout){
+  state.layout = layout;
+  document.querySelectorAll("[data-layout]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.layout === layout)));
+  frame.setAttribute("aria-labelledby", "tab-" + layout);
+  $("#notes").innerHTML = NOTES[layout] + `<div style="grid-column:1/-1">${RECOMMENDATION}</div>`;
+  try { localStorage.setItem("nexus-desktop-layout", layout); } catch (e) {}
+  if (!state.selectedId){ state.selectedId = "matrix"; state.query = state.query || "matrix"; }
+  openMovie(state.selectedId, { forceFresh:true });
+}
+document.querySelectorAll("[data-layout]").forEach(b => b.addEventListener("click", () => setLayout(b.dataset.layout)));
+$("#opt-width").addEventListener("change", () => { fit(); if (state.selectedId && state.view === "answer") openMovie(state.selectedId); });
+$("#replay-fresh").addEventListener("click", () => openMovie(state.selectedId || "matrix", { forceFresh:true }));
+$("#replay-cached").addEventListener("click", () => openMovie(state.selectedId || "matrix", { forceCached:true }));
+$("#fullscreen").addEventListener("click", () => { const p = frame.requestFullscreen?.(); if (p) p.catch(() => {}); });
+document.addEventListener("fullscreenchange", () => { fit(); if (state.selectedId && state.view === "answer") openMovie(state.selectedId, { forceCached:true }); });
+window.addEventListener("resize", fit);
+
+fit();
+let startLayout = "split";
+try { const saved = localStorage.getItem("nexus-desktop-layout"); if (NOTES[saved]) startLayout = saved; } catch (e) {}
+setLayout(startLayout);
+</script>
