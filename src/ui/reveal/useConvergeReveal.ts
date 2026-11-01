@@ -20,19 +20,35 @@ interface RevealOptions {
   answerRef: RefObject<HTMLElement | null>;
 }
 
-/** Where the Discovery streams meet, and later shoot out from: the centre of the screen. */
+/** The centre of the screen, used when there is no answer area to measure. */
 function screenCentre(): Point {
   return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 }
 
-/** Where the Ignite line flashes: across the centre of the answer's summary line. */
+/**
+ * Where the Discovery streams meet, and later shoot out from: halfway down the screen, centred
+ * over the answer. On a phone that is the middle of the screen; in the split view it is the
+ * middle of the answer column, not of the whole window.
+ */
+function nexusPoint(answer: HTMLElement | null): Point {
+  if (answer === null) {
+    return screenCentre();
+  }
+  const box = answer.getBoundingClientRect();
+  return { x: box.left + box.width / 2, y: window.innerHeight / 2 };
+}
+
+/**
+ * Where the Ignite line flashes: the centre of the answer's summary line. Measured from the
+ * summary itself, so it stays centred over the answer in the split view too.
+ */
 function summaryCentre(answer: HTMLElement): Point {
   const summary = answer.querySelector('[data-reveal="heading"]');
   if (summary === null) {
     return screenCentre();
   }
   const box = summary.getBoundingClientRect();
-  return { x: window.innerWidth / 2, y: box.top + box.height / 2 };
+  return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
 }
 
 function showWithPop(element: HTMLElement) {
@@ -77,8 +93,8 @@ export function useConvergeReveal({ status, cached, canvasRef, answerRef }: Reve
 
     discoveryRef.current?.stop();
     loadStartRef.current = performance.now();
-    discoveryRef.current = startDiscovery(canvas, screenCentre());
-  }, [status, canvasRef]);
+    discoveryRef.current = startDiscovery(canvas, nexusPoint(answerRef.current));
+  }, [status, canvasRef, answerRef]);
 
   useEffect(() => {
     return () => discoveryRef.current?.stop();
@@ -158,7 +174,7 @@ export function useConvergeReveal({ status, cached, canvasRef, answerRef }: Reve
       const targets: StreamTarget[] = rows.map((row) => toStreamTarget(row, decodes));
 
       const footer = hiddenElements.filter((element) => element.dataset.reveal === "footer");
-      discovery.resolve(screenCentre(), targets, () => {
+      discovery.resolve(nexusPoint(answer), targets, () => {
         footer.forEach(showWithFade);
         finish();
       });

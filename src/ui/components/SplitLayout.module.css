@@ -1,0 +1,50 @@
+/* Phones: one column, whichever of search or answer is showing. */
+.hiddenOnPhone {
+  display: none;
+}
+
+.emptyPane {
+  margin: 0;
+  max-width: 28ch;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* Split view from 768px (SPLIT_VIEW_MEDIA_QUERY in src/ui/screen-size.ts). */
+@media (min-width: 768px) {
+  .layout {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    min-height: 100vh;
+  }
+
+  .hiddenOnPhone {
+    display: block;
+  }
+
+  /* The search column stays put while the answer scrolls. */
+  .searchColumn {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 1px solid var(--line);
+    background: rgba(4, 7, 18, 0.35);
+  }
+
+  .answerPane {
+    min-width: 0;
+  }
+
+  .answerPane:has(.emptyPane) {
+    display: grid;
+    place-items: center;
+    padding: 32px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .layout {
+    grid-template-columns: 400px minmax(0, 1fr);
+  }
+}

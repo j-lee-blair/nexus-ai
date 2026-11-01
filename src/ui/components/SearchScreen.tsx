@@ -5,6 +5,8 @@ import { useEffect, useId, useState } from "react";
 import { MIN_QUERY_LENGTH, type ErrorCode } from "@/contracts/api";
 import type { Movie } from "@/domain/types";
 import { searchMovies } from "@/ui/api-client";
+import { recallSearch, rememberSearch } from "@/ui/last-search";
+import { isSplitView } from "@/ui/screen-size";
 import { rememberSelectedMovie } from "@/ui/selected-movie";
 import { Poster } from "./Poster";
 import { Problem } from "./Problem";
@@ -25,17 +27,32 @@ type SearchState =
 interface SearchScreenProps {
   /** The query from the address bar, so Back from a movie returns to the same results. */
   initialQuery: string;
+  /**
+   * Set when this search sits in the split view's left column next to a movie's answer: the
+   * movie whose answer is showing. Its result is highlighted.
+   */
+  selectedMovieId?: string;
 }
 
-export function SearchScreen({ initialQuery }: SearchScreenProps) {
+/** Starts with the remembered results when they are for this query, so nothing flickers. */
+function initialSearchState(query: string): SearchState {
+  const remembered = recallSearch(query);
+  if (remembered === null) {
+    return { status: "idle" };
+  }
+  return { status: "done", query: remembered.answeredQuery, results: remembered.results };
+}
+
+export function SearchScreen({ initialQuery, selectedMovieId }: SearchScreenProps) {
   const [query, setQuery] = useState(initialQuery);
-  const [state, setState] = useState<SearchState>({ status: "idle" });
+  const [state, setState] = useState<SearchState>(() => initialSearchState(initialQuery));
   // Changing this runs the same search again ("Try again").
   const [attempt, setAttempt] = useState(0);
   const hintId = useId();
 
   const trimmedQuery = query.trim();
   const isLongEnough = trimmedQuery.length >= MIN_QUERY_LENGTH;
+  const isBesideAnswer = selectedMovieId !== undefined;
 
   useEffect(() => {
     if (!isLongEnough) {
@@ -45,8 +62,19 @@ export function SearchScreen({ initialQuery }: SearchScreenProps) {
     const controller = new AbortController();
     let slowTimer = 0;
     const timer = window.setTimeout(async () => {
-      setState({ status: "loading", isSlow: false });
+      // On a phone the search is hidden while a movie is open, so it shouldn't spend a lookup.
+      if (isBesideAnswer && !isSplitView()) {
+        return;
+      }
+
       rememberQueryInAddressBar(trimmedQuery);
+      const remembered = recallSearch(trimmedQuery);
+      if (remembered !== null) {
+        setState({ status: "done", query: remembered.answeredQuery, results: remembered.results });
+        return;
+      }
+
+      setState({ status: "loading", isSlow: false });
       slowTimer = window.setTimeout(() => setState({ status: "loading", isSlow: true }), SLOW_AFTER_MS);
 
       let response;
@@ -66,6 +94,7 @@ export function SearchScreen({ initialQuery }: SearchScreenProps) {
         });
         return;
       }
+      rememberSearch({ query: trimmedQuery, answeredQuery: response.data.query, results: response.data.results });
       setState({ status: "done", query: response.data.query, results: response.data.results });
     }, TYPING_PAUSE_MS);
 
@@ -74,7 +103,7 @@ export function SearchScreen({ initialQuery }: SearchScreenProps) {
       window.clearTimeout(slowTimer);
       controller.abort();
     };
-  }, [trimmedQuery, isLongEnough, attempt]);
+  }, [trimmedQuery, isLongEnough, isBesideAnswer, attempt]);
 
   function tryAgain() {
     setAttempt(attempt + 1);
@@ -91,8 +120,8 @@ export function SearchScreen({ initialQuery }: SearchScreenProps) {
     }
   }
 
-  return (
-    <main className={styles.screen}>
+  const content = (
+    <>
       <header className={styles.header}>
         <Wordmark />
         <p className={styles.tagline}>Where can I stream this?</p>
@@ -113,7 +142,7 @@ export function SearchScreen({ initialQuery }: SearchScreenProps) {
           autoCorrect="off"
           spellCheck={false}
           enterKeyHint="search"
-          autoFocus
+          autoFocus={!isBesideAnswer}
           aria-describedby={hintId}
         />
         <p id={hintId} className={styles.hint}>
@@ -125,9 +154,19 @@ export function SearchScreen({ initialQuery }: SearchScreenProps) {
         <Problem code={state.code} retryAfterSeconds={state.retryAfterSeconds} onRetry={tryAgain} />
       )}
 
-      <SearchResults state={state} query={trimmedQuery} />
-    </main>
+      <SearchResults state={state} query={trimmedQuery} selectedMovieId={selectedMovieId} />
+    </>
   );
+
+  // Beside an answer the answer is the page's main content, and the search is secondary.
+  if (isBesideAnswer) {
+    return (
+      <aside className={styles.screen} aria-label="Search">
+        {content}
+      </aside>
+    );
+  }
+  return <main className={styles.screen}>{content}</main>;
 }
 
 /** Keeps ?q= in the address bar without adding history entries for every keystroke. */
@@ -180,9 +219,10 @@ function SearchHint({ query, isLongEnough, state }: SearchHintProps) {
 interface SearchResultsProps {
   state: SearchState;
   query: string;
+  selectedMovieId?: string;
 }
 
-function SearchResults({ state, query }: SearchResultsProps) {
+function SearchResults({ state, query, selectedMovieId }: SearchResultsProps) {
   if (state.status !== "done" || state.results.length === 0) {
     return null;
   }
@@ -191,14 +231,21 @@ function SearchResults({ state, query }: SearchResultsProps) {
     <ul className={styles.results} aria-label="Search results">
       {state.results.map((movie) => (
         <li key={movie.id}>
-          <ResultLink movie={movie} query={query} />
+          <ResultLink movie={movie} query={query} isSelected={movie.id === selectedMovieId} />
         </li>
       ))}
     </ul>
   );
 }
 
-function ResultLink({ movie, query }: { movie: Movie; query: string }) {
+interface ResultLinkProps {
+  movie: Movie;
+  query: string;
+  /** The movie whose answer is showing beside the results. */
+  isSelected: boolean;
+}
+
+function ResultLink({ movie, query, isSelected }: ResultLinkProps) {
   const href = `/movie/${encodeURIComponent(movie.id)}?q=${encodeURIComponent(query)}`;
 
   const details: string[] = [];
@@ -209,8 +256,18 @@ function ResultLink({ movie, query }: { movie: Movie; query: string }) {
     details.push(movie.originalTitle);
   }
 
+  let current: "page" | undefined = undefined;
+  if (isSelected) {
+    current = "page";
+  }
+
   return (
-    <Link href={href} className={styles.result} onClick={() => rememberSelectedMovie(movie)}>
+    <Link
+      href={href}
+      className={styles.result}
+      aria-current={current}
+      onClick={() => rememberSelectedMovie(movie)}
+    >
       <Poster movie={movie} size="small" />
       <span className={styles.resultText}>
         <span className={styles.resultTitle}>{movie.title}</span>
