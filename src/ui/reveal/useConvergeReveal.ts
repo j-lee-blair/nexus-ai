@@ -25,14 +25,17 @@ function screenCentre(): Point {
   return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 }
 
-/** Where the Ignite line flashes: across the centre of the answer's summary line. */
+/**
+ * Where the Ignite line flashes: the centre of the answer's summary line. Measured from the
+ * summary itself, so it stays centred over the answer in the split view too.
+ */
 function summaryCentre(answer: HTMLElement): Point {
   const summary = answer.querySelector('[data-reveal="heading"]');
   if (summary === null) {
     return screenCentre();
   }
   const box = summary.getBoundingClientRect();
-  return { x: window.innerWidth / 2, y: box.top + box.height / 2 };
+  return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
 }
 
 function showWithPop(element: HTMLElement) {

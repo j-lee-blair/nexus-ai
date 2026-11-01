@@ -334,8 +334,10 @@ const IGNITE_DURATION_MS = 240;
 const IGNITE_LINE_GROWS_MS = 70;
 
 /**
- * The Ignite snap for a cached answer: a gradient line flashes across the nexus point and the
- * answer opens upward and downward from it. Returns a function that ends it immediately.
+ * The Ignite snap for a cached answer: a gradient line flashes across the answer at the nexus
+ * point and the answer opens upward and downward from it. The line spans the answer, not the
+ * whole screen, so it sits over the answer column in the split view. Returns a function that
+ * ends it immediately.
  */
 export function playIgnite(canvas: HTMLCanvasElement, nexus: Point, answer: HTMLElement, onDone: () => void) {
   const answerBox = answer.getBoundingClientRect();
@@ -373,20 +375,22 @@ export function playIgnite(canvas: HTMLCanvasElement, nexus: Point, answer: HTML
       return;
     }
     const { context, width, height } = surface;
+    const lineStart = answerBox.left;
+    const lineEnd = answerBox.left + answerBox.width;
     const elapsed = now - startTime;
     const growth = Math.min(1, elapsed / IGNITE_LINE_GROWS_MS);
     const fade = Math.max(0, 1 - (elapsed - 60) / 170);
 
     context.clearRect(0, 0, width, height);
 
-    const line = context.createLinearGradient(0, 0, width, 0);
+    const line = context.createLinearGradient(lineStart, 0, lineEnd, 0);
     line.addColorStop(0, `rgba(${CYAN}, 0)`);
     line.addColorStop(0.25, `rgb(${CYAN})`);
     line.addColorStop(0.5, "#fff");
     line.addColorStop(0.75, `rgb(${MAGENTA})`);
     line.addColorStop(1, `rgba(${MAGENTA}, 0)`);
 
-    const lineWidth = width * growth;
+    const lineWidth = answerBox.width * growth;
     context.globalAlpha = fade;
     context.fillStyle = line;
     context.fillRect(nexus.x - lineWidth / 2, nexus.y - 1.5, lineWidth, 3);
