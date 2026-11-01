@@ -27,6 +27,13 @@
   text-decoration: underline;
 }
 
+/* Split view: the search column beside the answer has the wordmark and the results. */
+@media (min-width: 768px) {
+  .header {
+    display: none;
+  }
+}
+
 .region {
   min-height: 200px;
 }

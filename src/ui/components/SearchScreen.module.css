@@ -83,6 +83,12 @@
   outline-offset: 0;
 }
 
+/* The movie whose answer is showing beside the results (split view). */
+.result[aria-current="page"] {
+  background: var(--panel);
+  box-shadow: inset 3px 0 0 var(--cyan);
+}
+
 .resultText {
   display: flex;
   flex-direction: column;
@@ -97,4 +103,12 @@
 .resultDetails {
   font-size: 14px;
   color: var(--muted);
+}
+
+/* Split view: the search fills its column (see SplitLayout). */
+@media (min-width: 768px) {
+  .screen {
+    max-width: none;
+    padding: 40px 24px 32px;
+  }
 }
