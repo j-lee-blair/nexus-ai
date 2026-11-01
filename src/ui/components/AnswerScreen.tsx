@@ -2,19 +2,23 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import type { AvailabilityData } from "@/contracts/api";
+import type { AvailabilityData, ErrorCode } from "@/contracts/api";
 import { getAvailability } from "@/ui/api-client";
 import { availabilitySummary } from "@/ui/format";
 import { useConvergeReveal } from "@/ui/reveal/useConvergeReveal";
 import { useSelectedMovie } from "@/ui/selected-movie";
 import { AnswerView, MovieHeader } from "./AnswerView";
+import { Problem } from "./Problem";
 import { Wordmark } from "./Wordmark";
 import styles from "./AnswerScreen.module.css";
 
 type AnswerState =
   | { status: "loading" }
   | { status: "ready"; availability: AvailabilityData; checkedAt: string; cached: boolean }
-  | { status: "failed"; message: string };
+  | { status: "failed"; code: ErrorCode; retryAfterSeconds?: number };
+
+/** After this long, the loading text admits the data provider is being slow. */
+const SLOW_AFTER_MS = 4000;
 
 interface AnswerScreenProps {
   movieId: string;
@@ -24,6 +28,9 @@ interface AnswerScreenProps {
 
 export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
   const [state, setState] = useState<AnswerState>({ status: "loading" });
+  const [isSlow, setIsSlow] = useState(false);
+  // Changing this loads the answer again ("Try again").
+  const [attempt, setAttempt] = useState(0);
   const selectedMovie = useSelectedMovie(movieId);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const answerRef = useRef<HTMLDivElement>(null);
@@ -37,6 +44,7 @@ export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
 
   useEffect(() => {
     const controller = new AbortController();
+    const slowTimer = window.setTimeout(() => setIsSlow(true), SLOW_AFTER_MS);
 
     async function load() {
       let response;
@@ -47,8 +55,15 @@ export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
         return;
       }
 
+      window.clearTimeout(slowTimer);
+      setIsSlow(false);
+
       if (!response.ok) {
-        setState({ status: "failed", message: response.error.message });
+        setState({
+          status: "failed",
+          code: response.error.code,
+          retryAfterSeconds: response.error.retryAfterSeconds,
+        });
         return;
       }
       setState({
@@ -60,8 +75,16 @@ export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
     }
 
     load();
-    return () => controller.abort();
-  }, [movieId]);
+    return () => {
+      window.clearTimeout(slowTimer);
+      controller.abort();
+    };
+  }, [movieId, attempt]);
+
+  function tryAgain() {
+    setState({ status: "loading" });
+    setAttempt(attempt + 1);
+  }
 
   // The answer's own movie data wins once it arrives; until then, the movie picked in search.
   let movie = selectedMovie;
@@ -76,6 +99,12 @@ export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
     backLabel = "Back to results";
   }
 
+  // "Search again" goes to the search screen with the movie's title, when we know it.
+  let searchHref = backHref;
+  if (query === "" && movie !== null) {
+    searchHref = `/?q=${encodeURIComponent(movie.title)}`;
+  }
+
   return (
     <main className={styles.screen}>
       <header className={styles.header}>
@@ -88,7 +117,7 @@ export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
       {movie !== null && <MovieHeader movie={movie} />}
 
       <div ref={answerRef} aria-busy={isBusy} className={styles.region}>
-        <AnswerContent state={state} />
+        <AnswerContent state={state} isSlow={isSlow} onRetry={tryAgain} searchHref={searchHref} />
       </div>
 
       <p role="status" aria-live="polite" className="visually-hidden">
@@ -101,13 +130,35 @@ export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
   );
 }
 
-function AnswerContent({ state }: { state: AnswerState }) {
+interface AnswerContentProps {
+  state: AnswerState;
+  isSlow: boolean;
+  onRetry: () => void;
+  searchHref: string;
+}
+
+function AnswerContent({ state, isSlow, onRetry, searchHref }: AnswerContentProps) {
   if (state.status === "loading") {
-    return <p className={styles.loading}>Finding where to stream…</p>;
+    let text = "Finding where to stream…";
+    if (isSlow) {
+      text = "Still looking. The data provider is slower than usual.";
+    }
+    return (
+      <p className={styles.loading} role="status">
+        {text}
+      </p>
+    );
   }
 
   if (state.status === "failed") {
-    return <p className={styles.problem}>{state.message}</p>;
+    return (
+      <Problem
+        code={state.code}
+        retryAfterSeconds={state.retryAfterSeconds}
+        onRetry={onRetry}
+        searchHref={searchHref}
+      />
+    );
   }
 
   const now = new Date();

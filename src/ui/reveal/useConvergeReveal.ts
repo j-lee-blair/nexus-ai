@@ -64,19 +64,25 @@ export function useConvergeReveal({ status, cached, canvasRef, answerRef }: Reve
   const discoveryRef = useRef<Discovery | null>(null);
   const loadStartRef = useRef(0);
 
-  // Start gathering as soon as the screen opens, while the answer loads.
+  // Start gathering whenever the answer starts loading: when the screen opens, and again after
+  // "Try again". It is stopped by the reveal below, or when the screen closes.
   useEffect(() => {
+    if (status !== "loading") {
+      return;
+    }
     const canvas = canvasRef.current;
     if (canvas === null || prefersReducedMotion()) {
       return;
     }
 
+    discoveryRef.current?.stop();
     loadStartRef.current = performance.now();
-    const discovery = startDiscovery(canvas, screenCentre());
-    discoveryRef.current = discovery;
+    discoveryRef.current = startDiscovery(canvas, screenCentre());
+  }, [status, canvasRef]);
 
-    return () => discovery.stop();
-  }, [canvasRef]);
+  useEffect(() => {
+    return () => discoveryRef.current?.stop();
+  }, []);
 
   // A layout effect, so the parts still to be revealed are hidden before the browser paints.
   useLayoutEffect(() => {
