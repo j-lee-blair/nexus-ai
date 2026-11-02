@@ -112,6 +112,16 @@ describe("AnswerScreen", () => {
     expect(screen.queryByRole("link", { name: /Apple TV/ })).toBeNull();
   });
 
+  it("finishes the Ignite snap of a cached answer on its own, even without canvas drawing", async () => {
+    getAvailabilityMock.mockResolvedValue(answer(true));
+
+    render(<AnswerScreen movieId="1" query="matrix" />);
+
+    const announcement = await screen.findByText(ANNOUNCEMENT);
+    expect(announcement).toBeTruthy();
+    expect(answerRegion().getAttribute("aria-busy")).toBe("false");
+  });
+
   it("lets a tap skip the reveal of a cached answer", async () => {
     getAvailabilityMock.mockResolvedValue(answer(true));
 
