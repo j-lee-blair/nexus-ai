@@ -3,11 +3,25 @@
 import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { playIgnite, startDiscovery, type Discovery, type StreamTarget } from "./converge";
 import { decodeText } from "./decode";
+import {
+  findDecodingText,
+  findFirstRevealPart,
+  findRevealParts,
+  findStreamLanding,
+  isDecoding,
+  isRevealPart,
+} from "./markers";
 import { prefersReducedMotion, type Point } from "./motion";
 
 /** Discovery runs at least this long, so a fast answer doesn't make the screen flicker. */
 const MIN_DISCOVERY_MS = 450;
 const REDUCED_MOTION_FADE_MS = 150;
+/** How long an offer row takes to pop in when its stream lands. */
+const ROW_POP_MS = 180;
+/** How long headings and the footer take to fade in. */
+const FADE_IN_MS = 200;
+/** Cyan, for a stream whose row has no service chip to take a colour from. */
+const DEFAULT_STREAM_HUE = 190;
 
 export type RevealStatus = "loading" | "ready" | "failed";
 
@@ -16,7 +30,7 @@ interface RevealOptions {
   /** True when the answer came from Nexus's cache: play the Ignite snap instead of Discovery. */
   cached: boolean;
   canvasRef: RefObject<HTMLCanvasElement | null>;
-  /** Wraps the answer markup (AnswerView), which carries the data-reveal and data-decode hooks. */
+  /** Wraps the answer markup (AnswerView), which carries the marks from ./markers. */
   answerRef: RefObject<HTMLElement | null>;
 }
 
@@ -43,7 +57,7 @@ function nexusPoint(answer: HTMLElement | null): Point {
  * summary itself, so it stays centred over the answer in the split view too.
  */
 function summaryCentre(answer: HTMLElement): Point {
-  const summary = answer.querySelector('[data-reveal="heading"]');
+  const summary = findFirstRevealPart(answer, "heading");
   if (summary === null) {
     return screenCentre();
   }
@@ -54,14 +68,14 @@ function summaryCentre(answer: HTMLElement): Point {
 function showWithPop(element: HTMLElement) {
   element.style.visibility = "";
   element.animate([{ opacity: 0, transform: "scale(.97)" }, { opacity: 1, transform: "none" }], {
-    duration: 180,
+    duration: ROW_POP_MS,
     easing: "ease-out",
   });
 }
 
 function showWithFade(element: HTMLElement) {
   element.style.visibility = "";
-  element.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
+  element.animate([{ opacity: 0 }, { opacity: 1 }], { duration: FADE_IN_MS });
 }
 
 /**
@@ -116,7 +130,7 @@ export function useConvergeReveal({ status, cached, canvasRef, answerRef }: Reve
       return;
     }
 
-    const hiddenElements = Array.from(answer.querySelectorAll<HTMLElement>("[data-reveal]"));
+    const hiddenElements = findRevealParts(answer);
     const decodes: { finish: () => void }[] = [];
     const cleanups: (() => void)[] = [];
     let finished = false;
@@ -166,14 +180,14 @@ export function useConvergeReveal({ status, cached, canvasRef, answerRef }: Reve
         return;
       }
 
-      const headings = hiddenElements.filter((element) => element.dataset.reveal === "heading");
+      const headings = hiddenElements.filter((element) => isRevealPart(element, "heading"));
       headings.forEach(showWithFade);
-      decodes.push(decodeText(headings.filter((element) => element.hasAttribute("data-decode"))));
+      decodes.push(decodeText(headings.filter(isDecoding)));
 
-      const rows = hiddenElements.filter((element) => element.dataset.reveal === "offer");
+      const rows = hiddenElements.filter((element) => isRevealPart(element, "offer"));
       const targets: StreamTarget[] = rows.map((row) => toStreamTarget(row, decodes));
 
-      const footer = hiddenElements.filter((element) => element.dataset.reveal === "footer");
+      const footer = hiddenElements.filter((element) => isRevealPart(element, "footer"));
       discovery.resolve(nexusPoint(answer), targets, () => {
         footer.forEach(showWithFade);
         finish();
@@ -193,13 +207,13 @@ export function useConvergeReveal({ status, cached, canvasRef, answerRef }: Reve
 
 /** A stream that lands on an offer's service chip and then shows and decodes that row. */
 function toStreamTarget(row: HTMLElement, decodes: { finish: () => void }[]): StreamTarget {
-  const chip = row.querySelector<HTMLElement>("[data-stream-hue]");
+  const streamLandingInRow = findStreamLanding(row);
 
-  let landing = row;
-  let hue = 190;
-  if (chip !== null) {
-    landing = chip;
-    hue = Number(chip.dataset.streamHue);
+  let landing: HTMLElement = row;
+  let hue = DEFAULT_STREAM_HUE;
+  if (streamLandingInRow !== null) {
+    landing = streamLandingInRow.element;
+    hue = streamLandingInRow.hue;
   }
 
   const box = landing.getBoundingClientRect();
@@ -208,7 +222,7 @@ function toStreamTarget(row: HTMLElement, decodes: { finish: () => void }[]): St
     hue,
     onArrive: () => {
       showWithPop(row);
-      decodes.push(decodeText(Array.from(row.querySelectorAll("[data-decode]"))));
+      decodes.push(decodeText(findDecodingText(row)));
     },
   };
 }

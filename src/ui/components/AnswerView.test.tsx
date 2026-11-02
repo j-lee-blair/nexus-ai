@@ -1,6 +1,16 @@
+// @vitest-environment jsdom
+
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { groupOffers } from "@/domain/group-offers";
 import type { Availability, Offer } from "@/domain/types";
+import {
+  findDecodingText,
+  findFirstRevealPart,
+  findRevealParts,
+  findStreamLanding,
+  isRevealPart,
+} from "@/ui/reveal/markers";
 import { AnswerView, MovieHeader } from "./AnswerView";
 
 const movie = {
@@ -94,5 +104,30 @@ describe("MovieHeader", () => {
     const html = renderToStaticMarkup(<MovieHeader movie={movie} />);
 
     expect(html).toContain('<h1 tabindex="-1"');
+  });
+});
+
+describe("AnswerView reveal marks", () => {
+  it("marks the parts the Converge reveal looks for", () => {
+    const groups = groupOffers([rentOffer("SF Anytime", 39, "https://example.com/sf")]);
+    const availability: Availability = { movie, country: "SE", groups };
+    const container = document.createElement("div");
+    container.innerHTML = renderToStaticMarkup(
+      <AnswerView availability={availability} checkedAt={new Date().toISOString()} now={new Date()} />,
+    );
+
+    const parts = findRevealParts(container);
+    const offerRows = parts.filter((element) => isRevealPart(element, "offer"));
+    const footers = parts.filter((element) => isRevealPart(element, "footer"));
+    const summary = findFirstRevealPart(container, "heading");
+    const landing = findStreamLanding(offerRows[0]);
+
+    expect(offerRows).toHaveLength(1);
+    expect(footers).toHaveLength(1);
+    expect(summary?.textContent).toBe("On 1 service in Sweden");
+    expect(landing).not.toBeNull();
+    const decodingTexts = findDecodingText(offerRows[0]);
+    expect(decodingTexts).toHaveLength(2);
+    expect(decodingTexts[0].textContent).toBe("SF Anytime");
   });
 });
