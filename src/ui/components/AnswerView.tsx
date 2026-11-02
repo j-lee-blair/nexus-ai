@@ -6,6 +6,7 @@ import {
   hueFor,
   initials,
   isCheapestOffer,
+  movieDetails,
   offerPriceLabel,
   priceBarPercent,
 } from "@/ui/format";
@@ -29,14 +30,6 @@ interface MovieHeaderProps {
  * shown straight away and never part of the reveal.
  */
 export function MovieHeader({ movie, titleRef }: MovieHeaderProps) {
-  const details: string[] = [];
-  if (movie.year !== null) {
-    details.push(String(movie.year));
-  }
-  if (movie.originalTitle !== null && movie.originalTitle !== movie.title) {
-    details.push(movie.originalTitle);
-  }
-
   return (
     <header className={styles.head}>
       <Poster movie={movie} size="large" />
@@ -44,7 +37,7 @@ export function MovieHeader({ movie, titleRef }: MovieHeaderProps) {
         <h1 ref={titleRef} tabIndex={-1} className={styles.title}>
           {movie.title}
         </h1>
-        <p className={styles.details}>{details.join(" · ")}</p>
+        <p className={styles.details}>{movieDetails(movie)}</p>
       </div>
     </header>
   );

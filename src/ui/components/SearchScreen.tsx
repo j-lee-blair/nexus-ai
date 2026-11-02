@@ -5,7 +5,9 @@ import { useEffect, useId, useState } from "react";
 import { MIN_QUERY_LENGTH, type ErrorCode } from "@/contracts/api";
 import type { Movie } from "@/domain/types";
 import { searchMovies } from "@/ui/api-client";
+import { movieDetails } from "@/ui/format";
 import { recallSearch, rememberSearch } from "@/ui/last-search";
+import { moviePagePath } from "@/ui/page-routes";
 import { isSplitView } from "@/ui/screen-size";
 import { rememberSelectedMovie } from "@/ui/selected-movie";
 import { Poster } from "./Poster";
@@ -246,15 +248,7 @@ interface ResultLinkProps {
 }
 
 function ResultLink({ movie, query, isSelected }: ResultLinkProps) {
-  const href = `/movie/${encodeURIComponent(movie.id)}?q=${encodeURIComponent(query)}`;
-
-  const details: string[] = [];
-  if (movie.year !== null) {
-    details.push(String(movie.year));
-  }
-  if (movie.originalTitle !== null && movie.originalTitle !== movie.title) {
-    details.push(movie.originalTitle);
-  }
+  const href = moviePagePath(movie.id, query);
 
   let current: "page" | undefined = undefined;
   if (isSelected) {
@@ -271,7 +265,7 @@ function ResultLink({ movie, query, isSelected }: ResultLinkProps) {
       <Poster movie={movie} size="small" />
       <span className={styles.resultText}>
         <span className={styles.resultTitle}>{movie.title}</span>
-        <span className={styles.resultDetails}>{details.join(" · ")}</span>
+        <span className={styles.resultDetails}>{movieDetails(movie)}</span>
       </span>
     </Link>
   );

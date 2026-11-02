@@ -6,6 +6,7 @@ import {
   formatPrice,
   initials,
   isCheapestOffer,
+  movieDetails,
   offerPriceLabel,
   priceBarPercent,
 } from "./format";
@@ -116,5 +117,31 @@ describe("isCheapestOffer", () => {
     const group: OfferGroup = { type: "buy", offers: [apple, amazon], cheapest: true };
 
     expect(isCheapestOffer(apple, group)).toBe(false);
+  });
+});
+
+describe("movieDetails", () => {
+  const movie = { id: "1", title: "Fucking Åmål", originalTitle: null, year: 1998, tmdbId: null, posterUrl: null };
+
+  it("shows the year alone when there is no different original title", () => {
+    expect(movieDetails(movie)).toBe("1998");
+  });
+
+  it("adds the original title when it differs", () => {
+    const withOriginal = { ...movie, title: "Show Me Love", originalTitle: "Fucking Åmål" };
+
+    expect(movieDetails(withOriginal)).toBe("1998 · Fucking Åmål");
+  });
+
+  it("leaves out the original title when it is the same as the title", () => {
+    const sameTitle = { ...movie, originalTitle: "Fucking Åmål" };
+
+    expect(movieDetails(sameTitle)).toBe("1998");
+  });
+
+  it("shows only the original title when the year is unknown", () => {
+    const noYear = { ...movie, title: "Show Me Love", originalTitle: "Fucking Åmål", year: null };
+
+    expect(movieDetails(noYear)).toBe("Fucking Åmål");
   });
 });

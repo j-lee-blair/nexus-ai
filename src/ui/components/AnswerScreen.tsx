@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { AvailabilityData, ErrorCode } from "@/contracts/api";
 import { getAvailability } from "@/ui/api-client";
 import { availabilitySummary } from "@/ui/format";
+import { searchPagePath } from "@/ui/page-routes";
 import { useConvergeReveal } from "@/ui/reveal/useConvergeReveal";
 import { isSplitView } from "@/ui/screen-size";
 import { useSelectedMovie } from "@/ui/selected-movie";
@@ -105,17 +106,16 @@ export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
     titleRef.current?.focus();
   }, [isTitleShown]);
 
-  let backHref = "/";
+  const backHref = searchPagePath(query);
   let backLabel = "New search";
   if (query !== "") {
-    backHref = `/?q=${encodeURIComponent(query)}`;
     backLabel = "Back to results";
   }
 
   // "Search again" goes to the search screen with the movie's title, when we know it.
   let searchHref = backHref;
   if (query === "" && movie !== null) {
-    searchHref = `/?q=${encodeURIComponent(movie.title)}`;
+    searchHref = searchPagePath(movie.title);
   }
 
   return (
