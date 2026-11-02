@@ -1,13 +1,8 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
-import { playIgnite, startDiscovery, type Discovery, type StreamTarget } from "./converge";
-import { decodeText } from "./decode";
-import { prefersReducedMotion, type Point } from "./motion";
-
-/** Discovery runs at least this long, so a fast answer doesn't make the screen flicker. */
-const MIN_DISCOVERY_MS = 450;
-const REDUCED_MOTION_FADE_MS = 150;
+import { useLayoutEffect, useState, type RefObject } from "react";
+import { playReveal } from "./play-reveal";
+import { useDiscovery } from "./useDiscovery";
 
 export type RevealStatus = "loading" | "ready" | "failed";
 
@@ -16,60 +11,15 @@ interface RevealOptions {
   /** True when the answer came from Nexus's cache: play the Ignite snap instead of Discovery. */
   cached: boolean;
   canvasRef: RefObject<HTMLCanvasElement | null>;
-  /** Wraps the answer markup (AnswerView), which carries the data-reveal and data-decode hooks. */
+  /** Wraps the answer markup (AnswerView), which carries the marks from ./markers. */
   answerRef: RefObject<HTMLElement | null>;
-}
-
-/** The centre of the screen, used when there is no answer area to measure. */
-function screenCentre(): Point {
-  return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-}
-
-/**
- * Where the Discovery streams meet, and later shoot out from: halfway down the screen, centred
- * over the answer. On a phone that is the middle of the screen; in the split view it is the
- * middle of the answer column, not of the whole window.
- */
-function nexusPoint(answer: HTMLElement | null): Point {
-  if (answer === null) {
-    return screenCentre();
-  }
-  const box = answer.getBoundingClientRect();
-  return { x: box.left + box.width / 2, y: window.innerHeight / 2 };
-}
-
-/**
- * Where the Ignite line flashes: the centre of the answer's summary line. Measured from the
- * summary itself, so it stays centred over the answer in the split view too.
- */
-function summaryCentre(answer: HTMLElement): Point {
-  const summary = answer.querySelector('[data-reveal="heading"]');
-  if (summary === null) {
-    return screenCentre();
-  }
-  const box = summary.getBoundingClientRect();
-  return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
-}
-
-function showWithPop(element: HTMLElement) {
-  element.style.visibility = "";
-  element.animate([{ opacity: 0, transform: "scale(.97)" }, { opacity: 1, transform: "none" }], {
-    duration: 180,
-    easing: "ease-out",
-  });
-}
-
-function showWithFade(element: HTMLElement) {
-  element.style.visibility = "";
-  element.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
 }
 
 /**
  * Plays the Converge reveal over the answer screen (CLAUDE.md "Experience design"):
- * - while loading, Discovery streams gather at the nexus point;
- * - a fresh answer: streams fan out to each offer's row and the text decodes;
- * - a cached answer: the Ignite snap;
- * - reduced motion: a short fade instead.
+ * - while loading, Discovery streams gather at the nexus point (./useDiscovery);
+ * - once the answer is ready, it is revealed (./play-reveal): streams fan out to each offer's
+ *   row for a fresh answer, the Ignite snap for a cached one, a short fade for reduced motion.
  *
  * The answer's HTML is complete from the first moment; the reveal only hides parts of it
  * visually for well under a second. A tap or key press skips straight to the answer.
@@ -77,33 +27,12 @@ function showWithFade(element: HTMLElement) {
  */
 export function useConvergeReveal({ status, cached, canvasRef, answerRef }: RevealOptions) {
   const [isRevealing, setIsRevealing] = useState(false);
-  const discoveryRef = useRef<Discovery | null>(null);
-  const loadStartRef = useRef(0);
-
-  // Start gathering whenever the answer starts loading: when the screen opens, and again after
-  // "Try again". It is stopped by the reveal below, or when the screen closes.
-  useEffect(() => {
-    if (status !== "loading") {
-      return;
-    }
-    const canvas = canvasRef.current;
-    if (canvas === null || prefersReducedMotion()) {
-      return;
-    }
-
-    discoveryRef.current?.stop();
-    loadStartRef.current = performance.now();
-    discoveryRef.current = startDiscovery(canvas, nexusPoint(answerRef.current));
-  }, [status, canvasRef, answerRef]);
-
-  useEffect(() => {
-    return () => discoveryRef.current?.stop();
-  }, []);
+  const discovery = useDiscovery(status === "loading", canvasRef, answerRef);
 
   // A layout effect, so the parts still to be revealed are hidden before the browser paints.
   useLayoutEffect(() => {
     if (status === "failed") {
-      discoveryRef.current?.stop();
+      discovery.stop();
       return;
     }
     if (status !== "ready") {
@@ -116,99 +45,16 @@ export function useConvergeReveal({ status, cached, canvasRef, answerRef }: Reve
       return;
     }
 
-    const hiddenElements = Array.from(answer.querySelectorAll<HTMLElement>("[data-reveal]"));
-    const decodes: { finish: () => void }[] = [];
-    const cleanups: (() => void)[] = [];
-    let finished = false;
-
-    function finish() {
-      if (finished) {
-        return;
-      }
-      finished = true;
-      discoveryRef.current?.stop();
-      cleanups.forEach((cleanup) => cleanup());
-      decodes.forEach((decode) => decode.finish());
-      hiddenElements.forEach((element) => {
-        element.style.visibility = "";
-      });
-      window.removeEventListener("pointerdown", finish, true);
-      window.removeEventListener("keydown", finish, true);
-      setIsRevealing(false);
-    }
-
     setIsRevealing(true);
-    window.addEventListener("pointerdown", finish, true);
-    window.addEventListener("keydown", finish, true);
-
-    if (prefersReducedMotion()) {
-      const fade = answer.animate([{ opacity: 0 }, { opacity: 1 }], { duration: REDUCED_MOTION_FADE_MS });
-      fade.onfinish = finish;
-      cleanups.push(() => fade.cancel());
-      return finish;
-    }
-
-    if (cached) {
-      discoveryRef.current?.stop();
-      const stopIgnite = playIgnite(canvas, summaryCentre(answer), answer, finish);
-      cleanups.push(stopIgnite);
-      return finish;
-    }
-
-    hiddenElements.forEach((element) => {
-      element.style.visibility = "hidden";
+    const finishReveal = playReveal({
+      answer,
+      canvas,
+      cached,
+      discovery,
+      onFinished: () => setIsRevealing(false),
     });
-
-    function fanOut() {
-      const discovery = discoveryRef.current;
-      if (discovery === null || answer === null) {
-        finish();
-        return;
-      }
-
-      const headings = hiddenElements.filter((element) => element.dataset.reveal === "heading");
-      headings.forEach(showWithFade);
-      decodes.push(decodeText(headings.filter((element) => element.hasAttribute("data-decode"))));
-
-      const rows = hiddenElements.filter((element) => element.dataset.reveal === "offer");
-      const targets: StreamTarget[] = rows.map((row) => toStreamTarget(row, decodes));
-
-      const footer = hiddenElements.filter((element) => element.dataset.reveal === "footer");
-      discovery.resolve(nexusPoint(answer), targets, () => {
-        footer.forEach(showWithFade);
-        finish();
-      });
-    }
-
-    const elapsed = performance.now() - loadStartRef.current;
-    const remaining = Math.max(0, MIN_DISCOVERY_MS - elapsed);
-    const timer = window.setTimeout(fanOut, remaining);
-    cleanups.push(() => window.clearTimeout(timer));
-
-    return finish;
-  }, [status, cached, canvasRef, answerRef]);
+    return finishReveal;
+  }, [status, cached, canvasRef, answerRef, discovery]);
 
   return { isRevealing };
-}
-
-/** A stream that lands on an offer's service chip and then shows and decodes that row. */
-function toStreamTarget(row: HTMLElement, decodes: { finish: () => void }[]): StreamTarget {
-  const chip = row.querySelector<HTMLElement>("[data-stream-hue]");
-
-  let landing = row;
-  let hue = 190;
-  if (chip !== null) {
-    landing = chip;
-    hue = Number(chip.dataset.streamHue);
-  }
-
-  const box = landing.getBoundingClientRect();
-  return {
-    point: { x: box.left + box.width / 2, y: box.top + box.height / 2 },
-    hue,
-    onArrive: () => {
-      showWithPop(row);
-      decodes.push(decodeText(Array.from(row.querySelectorAll("[data-decode]"))));
-    },
-  };
 }

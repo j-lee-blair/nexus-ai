@@ -16,6 +16,14 @@ describe("last search", () => {
     expect(recalled?.results).toEqual([matrix]);
   });
 
+  it("recalls the results for the same query in different letter case", () => {
+    rememberSearch({ query: "matrix", answeredQuery: "matrix", results: [matrix] });
+
+    const recalled = recallSearch("Matrix");
+
+    expect(recalled?.results).toEqual([matrix]);
+  });
+
   it("recalls nothing for a different query", () => {
     rememberSearch({ query: "matrix", answeredQuery: "matrix", results: [matrix] });
 

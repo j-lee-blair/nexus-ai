@@ -13,6 +13,15 @@ export const API_ROUTES = {
 /** Queries shorter than this are rejected with `invalid_query`, so they never cost credits. */
 export const MIN_QUERY_LENGTH = 3;
 
+/**
+ * Searches ignore surrounding spaces and letter case, so "Matrix " and "matrix" are the same
+ * search. Used by the server cache and the browser's memory of the last search.
+ */
+export function normaliseSearchQuery(query: string): string {
+  const trimmed = query.trim();
+  return trimmed.toLowerCase();
+}
+
 export interface SearchData {
   query: string;
   /** Empty when nothing matches. That is a normal answer, not an error. */
@@ -49,7 +58,10 @@ export interface ApiFailure {
   ok: false;
   error: {
     code: ErrorCode;
-    /** Plain-language message, safe to show to users. */
+    /**
+     * A short explanation for developers (logs, debugging). The app does not show it: what users
+     * read is written in src/ui/problems.ts, keyed by `code`, so the wording has one owner.
+     */
     message: string;
     /** Set for rate_limited and quota_reached. */
     retryAfterSeconds?: number;

@@ -6,9 +6,11 @@ import {
   hueFor,
   initials,
   isCheapestOffer,
+  movieDetails,
   offerPriceLabel,
   priceBarPercent,
 } from "@/ui/format";
+import { decodes, revealPart, streamLanding } from "@/ui/reveal/markers";
 import { Poster } from "./Poster";
 import styles from "./AnswerView.module.css";
 
@@ -29,14 +31,6 @@ interface MovieHeaderProps {
  * shown straight away and never part of the reveal.
  */
 export function MovieHeader({ movie, titleRef }: MovieHeaderProps) {
-  const details: string[] = [];
-  if (movie.year !== null) {
-    details.push(String(movie.year));
-  }
-  if (movie.originalTitle !== null && movie.originalTitle !== movie.title) {
-    details.push(movie.originalTitle);
-  }
-
   return (
     <header className={styles.head}>
       <Poster movie={movie} size="large" />
@@ -44,7 +38,7 @@ export function MovieHeader({ movie, titleRef }: MovieHeaderProps) {
         <h1 ref={titleRef} tabIndex={-1} className={styles.title}>
           {movie.title}
         </h1>
-        <p className={styles.details}>{details.join(" · ")}</p>
+        <p className={styles.details}>{movieDetails(movie)}</p>
       </div>
     </header>
   );
@@ -53,8 +47,9 @@ export function MovieHeader({ movie, titleRef }: MovieHeaderProps) {
 /**
  * The answer: where the movie is available in Sweden, as plain, accessible HTML.
  * Shows exactly what the data provider returned. The Converge reveal (src/ui/reveal) is laid
- * over this markup and never changes its content or order. It finds its targets through
- * data-reveal (what to hide and show) and data-decode (text that decodes from glyphs).
+ * over this markup and never changes its content or order. It finds its targets through the
+ * marks from src/ui/reveal/markers.ts: revealPart (what to hide and show), decodes (text that
+ * decodes from glyphs) and streamLanding (where an offer's stream lands).
  */
 export function AnswerView({ availability, checkedAt, now }: AnswerViewProps) {
   const summary = availabilitySummary(availability.groups);
@@ -62,12 +57,12 @@ export function AnswerView({ availability, checkedAt, now }: AnswerViewProps) {
   return (
     <section className={styles.answer} aria-label="Where to watch in Sweden">
 
-      <p className={styles.summary} data-reveal="heading" data-decode>
+      <p className={styles.summary} {...revealPart("heading")} {...decodes}>
         {summary}
       </p>
 
       {availability.groups.length === 0 && (
-        <p className={styles.empty} data-reveal="heading">
+        <p className={styles.empty} {...revealPart("heading")}>
           You can’t stream, rent or buy this movie in Sweden right now.
         </p>
       )}
@@ -76,7 +71,7 @@ export function AnswerView({ availability, checkedAt, now }: AnswerViewProps) {
         <OfferGroupSection key={group.type} group={group} />
       ))}
 
-      <footer className={styles.footer} data-reveal="footer">
+      <footer className={styles.footer} {...revealPart("footer")}>
         {formatCheckedAt(checkedAt, now)} · Streaming data from{" "}
         <a href="https://www.watchmode.com/" target="_blank" rel="noopener noreferrer">
           Watchmode
@@ -92,12 +87,12 @@ function OfferGroupSection({ group }: { group: OfferGroup }) {
 
   return (
     <section className={styles.group} aria-labelledby={headingId}>
-      <h2 id={headingId} className={styles.groupTitle} data-reveal="heading" data-decode>
+      <h2 id={headingId} className={styles.groupTitle} {...revealPart("heading")} {...decodes}>
         {label}
       </h2>
       <ul className={styles.offers}>
         {group.offers.map((offer) => (
-          <li key={offer.provider.id} data-reveal="offer">
+          <li key={offer.provider.id} {...revealPart("offer")}>
             <OfferRow offer={offer} group={group} isCheapest={isCheapestOffer(offer, group)} />
           </li>
         ))}
@@ -122,15 +117,15 @@ function OfferRow({ offer, group, isCheapest }: OfferRowProps) {
       <span
         className={styles.chip}
         style={{ "--hue": hue } as React.CSSProperties}
-        data-stream-hue={hue}
+        {...streamLanding(hue)}
         aria-hidden="true"
       >
         {initials(offer.provider.name)}
       </span>
-      <span className={styles.providerName} data-decode>
+      <span className={styles.providerName} {...decodes}>
         {offer.provider.name}
       </span>
-      <span className={styles.price} data-decode>
+      <span className={styles.price} {...decodes}>
         {priceLabel}
       </span>
       {isPaid && (

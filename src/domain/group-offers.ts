@@ -1,10 +1,6 @@
-import { OFFER_TYPE_ORDER, type Offer, type OfferGroup, type OfferType } from "./types";
+import { OFFER_TYPE_ORDER, isPaidOfferType, type Offer, type OfferGroup } from "./types";
 
 const QUALITY_RANK = { "4K": 3, HD: 2, SD: 1 } as const;
-
-function isPaid(type: OfferType): boolean {
-  return type === "rent" || type === "buy";
-}
 
 function priceOf(offer: Offer): number {
   if (offer.price === null) {
@@ -22,7 +18,7 @@ function qualityRank(offer: Offer): number {
 
 /** True when `candidate` should replace `current` as a provider's single offer of one type. */
 function isBetterOffer(candidate: Offer, current: Offer): boolean {
-  if (isPaid(candidate.type) && priceOf(candidate) !== priceOf(current)) {
+  if (isPaidOfferType(candidate.type) && priceOf(candidate) !== priceOf(current)) {
     return priceOf(candidate) < priceOf(current);
   }
   return qualityRank(candidate) > qualityRank(current);
@@ -72,7 +68,7 @@ export function groupOffers(offers: readonly Offer[]): OfferGroup[] {
       continue;
     }
 
-    const paid = isPaid(type);
+    const paid = isPaidOfferType(type);
     if (paid) {
       offersOfType.sort(byPriceThenProviderName);
     } else {

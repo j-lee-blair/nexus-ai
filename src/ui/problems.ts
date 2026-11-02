@@ -1,7 +1,8 @@
-// What Nexus says when it can't give an answer. The wording lives here, keyed by the API's
-// error codes (src/contracts/api.ts), so every screen says the same thing for the same problem.
+// What Nexus says when it can't give an answer. This file is the only owner of that wording: it
+// is keyed by the API's error codes (src/contracts/api.ts), and the server's own `message` is for
+// developers only. So every screen says the same thing for the same problem.
 
-import type { ErrorCode } from "@/contracts/api";
+import { MIN_QUERY_LENGTH, type ErrorCode } from "@/contracts/api";
 
 export interface ProblemDescription {
   title: string;
@@ -42,7 +43,7 @@ export function describeProblem(code: ErrorCode, retryAfterSeconds?: number): Pr
   if (code === "invalid_query") {
     return {
       title: "Type a little more",
-      detail: "Search with at least 3 letters of the title.",
+      detail: `Search with at least ${MIN_QUERY_LENGTH} letters of the title.`,
       canRetry: false,
     };
   }

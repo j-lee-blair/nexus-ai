@@ -2,10 +2,11 @@
 // column is drawn again each time a movie is picked; with this it shows the same results straight
 // away instead of asking the server again. Memory only: a page reload starts fresh.
 
+import { normaliseSearchQuery } from "@/contracts/api";
 import type { Movie } from "@/domain/types";
 
 export interface RememberedSearch {
-  /** What the visitor typed, trimmed: the key we look results up by. */
+  /** What the visitor typed, trimmed. Compared with normaliseSearchQuery, so case doesn't matter. */
   query: string;
   /** The query as the server echoed it, used in the "No movies match" text. */
   answeredQuery: string;
@@ -18,12 +19,15 @@ export function rememberSearch(search: RememberedSearch) {
   lastSearch = search;
 }
 
-/** The remembered results for exactly this query, or null. */
+/** The remembered results for this query (ignoring case and surrounding spaces), or null. */
 export function recallSearch(query: string): RememberedSearch | null {
   if (lastSearch === null) {
     return null;
   }
-  if (lastSearch.query !== query.trim()) {
+
+  const rememberedQuery = normaliseSearchQuery(lastSearch.query);
+  const requestedQuery = normaliseSearchQuery(query);
+  if (rememberedQuery !== requestedQuery) {
     return null;
   }
   return lastSearch;

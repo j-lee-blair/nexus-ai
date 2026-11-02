@@ -332,6 +332,9 @@ export function startDiscovery(canvas: HTMLCanvasElement, nexus: Point): Discove
 
 const IGNITE_DURATION_MS = 240;
 const IGNITE_LINE_GROWS_MS = 70;
+/** The line stays at full strength this long, then fades over IGNITE_LINE_FADE_MS. */
+const IGNITE_LINE_HOLD_MS = 60;
+const IGNITE_LINE_FADE_MS = 170;
 
 /**
  * The Ignite snap for a cached answer: a gradient line flashes across the answer at the nexus
@@ -370,16 +373,12 @@ export function playIgnite(canvas: HTMLCanvasElement, nexus: Point, answer: HTML
     onDone();
   }
 
-  function drawFrame(now: number) {
-    if (finished || surface === null) {
-      return;
-    }
+  function drawLine(surface: Surface, elapsed: number) {
     const { context, width, height } = surface;
     const lineStart = answerBox.left;
     const lineEnd = answerBox.left + answerBox.width;
-    const elapsed = now - startTime;
     const growth = Math.min(1, elapsed / IGNITE_LINE_GROWS_MS);
-    const fade = Math.max(0, 1 - (elapsed - 60) / 170);
+    const fade = Math.max(0, 1 - (elapsed - IGNITE_LINE_HOLD_MS) / IGNITE_LINE_FADE_MS);
 
     context.clearRect(0, 0, width, height);
 
@@ -401,6 +400,18 @@ export function playIgnite(canvas: HTMLCanvasElement, nexus: Point, answer: HTML
     context.arc(nexus.x, nexus.y, 6 + 10 * growth, 0, Math.PI * 2);
     context.fill();
     context.globalAlpha = 1;
+  }
+
+  function drawFrame(now: number) {
+    if (finished) {
+      return;
+    }
+
+    const elapsed = now - startTime;
+    // Without a canvas to draw on, the answer still opens, and the snap must still end on time.
+    if (surface !== null) {
+      drawLine(surface, elapsed);
+    }
 
     if (elapsed > IGNITE_DURATION_MS) {
       finish();
