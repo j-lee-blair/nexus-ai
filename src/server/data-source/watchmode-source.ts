@@ -64,7 +64,7 @@ export function createWatchmodeDataSource(gateway: WatchmodeGateway, cache: Cach
       if (!remembered.cached) {
         await rememberMovies(remembered.value);
       }
-      return { data: remembered.value, cached: remembered.cached, checkedAt: remembered.storedAt };
+      return { data: remembered.value, cached: remembered.cached, checkedAt: remembered.checkedAt };
     },
 
     async availability(movieId) {
@@ -81,7 +81,7 @@ export function createWatchmodeDataSource(gateway: WatchmodeGateway, cache: Cach
         return availability;
       });
 
-      return { data: remembered.value, cached: remembered.cached, checkedAt: remembered.storedAt };
+      return { data: remembered.value, cached: remembered.cached, checkedAt: remembered.checkedAt };
     },
   };
 }
