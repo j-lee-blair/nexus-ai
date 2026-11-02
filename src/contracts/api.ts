@@ -58,7 +58,10 @@ export interface ApiFailure {
   ok: false;
   error: {
     code: ErrorCode;
-    /** Plain-language message, safe to show to users. */
+    /**
+     * A short explanation for developers (logs, debugging). The app does not show it: what users
+     * read is written in src/ui/problems.ts, keyed by `code`, so the wording has one owner.
+     */
     message: string;
     /** Set for rate_limited and quota_reached. */
     retryAfterSeconds?: number;

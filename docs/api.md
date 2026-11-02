@@ -18,6 +18,9 @@ or an error envelope:
 { "ok": false, "error": { "code": "quota_reached", "message": "…", "retryAfterSeconds": 3600 } }
 ```
 
+`message` is a short explanation for developers. The app never shows it; the text users see comes
+from `src/ui/problems.ts`, chosen by `code`.
+
 | Code | HTTP | Meaning |
 |---|---|---|
 | `invalid_query` | 400 | Query missing or shorter than 3 characters |
