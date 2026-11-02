@@ -1,30 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useState } from "react";
-import { MIN_QUERY_LENGTH, type ErrorCode } from "@/contracts/api";
+import { useId, useState } from "react";
+import { MIN_QUERY_LENGTH } from "@/contracts/api";
 import type { Movie } from "@/domain/types";
-import { searchMovies } from "@/ui/api-client";
 import { movieDetails } from "@/ui/format";
-import { recallSearch, rememberSearch } from "@/ui/last-search";
+import { useMovieSearch, type SearchState } from "@/ui/hooks/useMovieSearch";
 import { moviePagePath } from "@/ui/page-routes";
-import { isSplitView } from "@/ui/screen-size";
 import { rememberSelectedMovie } from "@/ui/selected-movie";
 import { Poster } from "./Poster";
 import { Problem } from "./Problem";
 import { Wordmark } from "./Wordmark";
 import styles from "./SearchScreen.module.css";
-
-/** Wait this long after the last keystroke before searching, so typing doesn't spend lookups. */
-const TYPING_PAUSE_MS = 350;
-/** After this long, the status line admits the search is slow. */
-const SLOW_AFTER_MS = 4000;
-
-type SearchState =
-  | { status: "idle" }
-  | { status: "loading"; isSlow: boolean }
-  | { status: "done"; query: string; results: Movie[] }
-  | { status: "failed"; code: ErrorCode; retryAfterSeconds?: number };
 
 interface SearchScreenProps {
   /** The query from the address bar, so Back from a movie returns to the same results. */
@@ -36,80 +23,14 @@ interface SearchScreenProps {
   selectedMovieId?: string;
 }
 
-/** Starts with the remembered results when they are for this query, so nothing flickers. */
-function initialSearchState(query: string): SearchState {
-  const remembered = recallSearch(query);
-  if (remembered === null) {
-    return { status: "idle" };
-  }
-  return { status: "done", query: remembered.answeredQuery, results: remembered.results };
-}
-
 export function SearchScreen({ initialQuery, selectedMovieId }: SearchScreenProps) {
   const [query, setQuery] = useState(initialQuery);
-  const [state, setState] = useState<SearchState>(() => initialSearchState(initialQuery));
-  // Changing this runs the same search again ("Try again").
-  const [attempt, setAttempt] = useState(0);
   const hintId = useId();
 
   const trimmedQuery = query.trim();
   const isLongEnough = trimmedQuery.length >= MIN_QUERY_LENGTH;
   const isBesideAnswer = selectedMovieId !== undefined;
-
-  useEffect(() => {
-    if (!isLongEnough) {
-      return;
-    }
-
-    const controller = new AbortController();
-    let slowTimer = 0;
-    const timer = window.setTimeout(async () => {
-      // On a phone the search is hidden while a movie is open, so it shouldn't spend a lookup.
-      if (isBesideAnswer && !isSplitView()) {
-        return;
-      }
-
-      rememberQueryInAddressBar(trimmedQuery);
-      const remembered = recallSearch(trimmedQuery);
-      if (remembered !== null) {
-        setState({ status: "done", query: remembered.answeredQuery, results: remembered.results });
-        return;
-      }
-
-      setState({ status: "loading", isSlow: false });
-      slowTimer = window.setTimeout(() => setState({ status: "loading", isSlow: true }), SLOW_AFTER_MS);
-
-      let response;
-      try {
-        response = await searchMovies(trimmedQuery, controller.signal);
-      } catch {
-        // Cancelled because the user typed again; the next search takes over.
-        return;
-      }
-      window.clearTimeout(slowTimer);
-
-      if (!response.ok) {
-        setState({
-          status: "failed",
-          code: response.error.code,
-          retryAfterSeconds: response.error.retryAfterSeconds,
-        });
-        return;
-      }
-      rememberSearch({ query: trimmedQuery, answeredQuery: response.data.query, results: response.data.results });
-      setState({ status: "done", query: response.data.query, results: response.data.results });
-    }, TYPING_PAUSE_MS);
-
-    return () => {
-      window.clearTimeout(timer);
-      window.clearTimeout(slowTimer);
-      controller.abort();
-    };
-  }, [trimmedQuery, isLongEnough, isBesideAnswer, attempt]);
-
-  function tryAgain() {
-    setAttempt(attempt + 1);
-  }
+  const { state, retry, clear } = useMovieSearch({ query, initialQuery, isBesideAnswer });
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const nextQuery = event.target.value;
@@ -117,8 +38,7 @@ export function SearchScreen({ initialQuery, selectedMovieId }: SearchScreenProp
 
     const nextIsLongEnough = nextQuery.trim().length >= MIN_QUERY_LENGTH;
     if (!nextIsLongEnough) {
-      setState({ status: "idle" });
-      rememberQueryInAddressBar("");
+      clear();
     }
   }
 
@@ -153,7 +73,7 @@ export function SearchScreen({ initialQuery, selectedMovieId }: SearchScreenProp
       </form>
 
       {state.status === "failed" && (
-        <Problem code={state.code} retryAfterSeconds={state.retryAfterSeconds} onRetry={tryAgain} />
+        <Problem code={state.code} retryAfterSeconds={state.retryAfterSeconds} onRetry={retry} />
       )}
 
       <SearchResults state={state} query={trimmedQuery} selectedMovieId={selectedMovieId} />
@@ -169,17 +89,6 @@ export function SearchScreen({ initialQuery, selectedMovieId }: SearchScreenProp
     );
   }
   return <main className={styles.screen}>{content}</main>;
-}
-
-/** Keeps ?q= in the address bar without adding history entries for every keystroke. */
-function rememberQueryInAddressBar(query: string) {
-  const url = new URL(window.location.href);
-  if (query === "") {
-    url.searchParams.delete("q");
-  } else {
-    url.searchParams.set("q", query);
-  }
-  window.history.replaceState(null, "", url);
 }
 
 interface SearchHintProps {

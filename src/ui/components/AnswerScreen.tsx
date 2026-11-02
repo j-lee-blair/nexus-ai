@@ -1,26 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import type { AvailabilityData, ErrorCode } from "@/contracts/api";
-import { getAvailability } from "@/ui/api-client";
+import { useRef } from "react";
 import { availabilitySummary } from "@/ui/format";
+import { useAvailability, type AnswerState } from "@/ui/hooks/useAvailability";
+import { useFocusWhenShown } from "@/ui/hooks/useFocusWhenShown";
 import { searchPagePath } from "@/ui/page-routes";
 import { useConvergeReveal } from "@/ui/reveal/useConvergeReveal";
-import { isSplitView } from "@/ui/screen-size";
 import { useSelectedMovie } from "@/ui/selected-movie";
 import { AnswerView, MovieHeader } from "./AnswerView";
 import { Problem } from "./Problem";
 import { Wordmark } from "./Wordmark";
 import styles from "./AnswerScreen.module.css";
-
-type AnswerState =
-  | { status: "loading" }
-  | { status: "ready"; availability: AvailabilityData; checkedAt: string; cached: boolean }
-  | { status: "failed"; code: ErrorCode; retryAfterSeconds?: number };
-
-/** After this long, the loading text admits the data provider is being slow. */
-const SLOW_AFTER_MS = 4000;
 
 interface AnswerScreenProps {
   movieId: string;
@@ -29,10 +20,7 @@ interface AnswerScreenProps {
 }
 
 export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
-  const [state, setState] = useState<AnswerState>({ status: "loading" });
-  const [isSlow, setIsSlow] = useState(false);
-  // Changing this loads the answer again ("Try again").
-  const [attempt, setAttempt] = useState(0);
+  const { state, isSlow, retry } = useAvailability(movieId);
   const selectedMovie = useSelectedMovie(movieId);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const answerRef = useRef<HTMLDivElement>(null);
@@ -45,66 +33,14 @@ export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
   const { isRevealing } = useConvergeReveal({ status: state.status, cached, canvasRef, answerRef });
   const isBusy = state.status === "loading" || isRevealing;
 
-  useEffect(() => {
-    const controller = new AbortController();
-    const slowTimer = window.setTimeout(() => setIsSlow(true), SLOW_AFTER_MS);
-
-    async function load() {
-      let response;
-      try {
-        response = await getAvailability(movieId, controller.signal);
-      } catch {
-        // Cancelled because the user left this screen.
-        return;
-      }
-
-      window.clearTimeout(slowTimer);
-      setIsSlow(false);
-
-      if (!response.ok) {
-        setState({
-          status: "failed",
-          code: response.error.code,
-          retryAfterSeconds: response.error.retryAfterSeconds,
-        });
-        return;
-      }
-      setState({
-        status: "ready",
-        availability: response.data,
-        checkedAt: response.checkedAt,
-        cached: response.cached,
-      });
-    }
-
-    load();
-    return () => {
-      window.clearTimeout(slowTimer);
-      controller.abort();
-    };
-  }, [movieId, attempt]);
-
-  function tryAgain() {
-    setState({ status: "loading" });
-    setAttempt(attempt + 1);
-  }
-
   // The answer's own movie data wins once it arrives; until then, the movie picked in search.
   let movie = selectedMovie;
   if (state.status === "ready") {
     movie = state.availability.movie;
   }
 
-  // In the split view the answer appears beside the search, so keyboard and screen-reader users
-  // would not notice it changed. Move focus to the movie's title once it shows, so the next Tab
-  // reaches the services. Phones open a new screen, which already starts from the top.
   const isTitleShown = movie !== null;
-  useEffect(() => {
-    if (!isTitleShown || !isSplitView()) {
-      return;
-    }
-    titleRef.current?.focus();
-  }, [isTitleShown]);
+  useFocusWhenShown(titleRef, isTitleShown);
 
   const backHref = searchPagePath(query);
   let backLabel = "New search";
@@ -130,7 +66,7 @@ export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
       {movie !== null && <MovieHeader movie={movie} titleRef={titleRef} />}
 
       <div ref={answerRef} aria-busy={isBusy} className={styles.region}>
-        <AnswerContent state={state} isSlow={isSlow} onRetry={tryAgain} searchHref={searchHref} />
+        <AnswerContent state={state} isSlow={isSlow} onRetry={retry} searchHref={searchHref} />
       </div>
 
       <p role="status" aria-live="polite" className="visually-hidden">
