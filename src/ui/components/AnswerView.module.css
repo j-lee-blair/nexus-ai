@@ -19,6 +19,17 @@
   text-wrap: balance;
 }
 
+/* Focus is moved here after a movie is picked (split view); no ring unless using the keyboard. */
+.title:focus {
+  outline: none;
+}
+
+.title:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
 .details {
   margin: 4px 0 0;
   font-size: 14px;
@@ -166,4 +177,30 @@ a.offer:focus-visible {
 
 .footer a {
   color: inherit;
+}
+
+/* Wide split view (from 1025px): a larger header, and offers in two columns so a well-covered
+   movie fits on a laptop screen. Rows still read cheapest first, left to right, top to bottom. */
+@media (min-width: 1025px) {
+  .head {
+    gap: 24px;
+  }
+
+  /* The poster, bigger than its "large" size on phones. */
+  .head > :first-child {
+    width: 96px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .details {
+    font-size: 15px;
+  }
+
+  .offers {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

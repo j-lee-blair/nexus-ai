@@ -188,6 +188,11 @@ someone new to the project can follow it without unpacking dense expressions.
   union types with an explicit check (`if (!body.ok) throw …`) rather than `body.ok && body.data`.
 - **Descriptive names.** No abbreviations beyond well-known ones such as `id` and `url`.
 - **Comments explain why**, not what the next line does.
+- **More than one `useEffect` in a file? Consider a custom hook.** Move the effects, and the state
+  and functions they work with, into a hook named for what it does (e.g. `useAvailability`). The hook
+  returns only what the component needs (state, and functions such as `retry`). The component then
+  reads as layout, and the logic can be changed and tested in one place. `useLayoutEffect` counts
+  as a `useEffect` here.
 
 ## What AI agents must NOT do
 

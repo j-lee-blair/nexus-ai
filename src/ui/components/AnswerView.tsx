@@ -18,11 +18,17 @@ interface AnswerViewProps {
   now: Date;
 }
 
+interface MovieHeaderProps {
+  movie: Movie;
+  /** Lets the answer screen move keyboard focus to the title after a movie is picked. */
+  titleRef?: React.Ref<HTMLHeadingElement>;
+}
+
 /**
  * The movie's poster, title and year. Static: the visitor already picked this movie, so it is
  * shown straight away and never part of the reveal.
  */
-export function MovieHeader({ movie }: { movie: Movie }) {
+export function MovieHeader({ movie, titleRef }: MovieHeaderProps) {
   const details: string[] = [];
   if (movie.year !== null) {
     details.push(String(movie.year));
@@ -35,7 +41,9 @@ export function MovieHeader({ movie }: { movie: Movie }) {
     <header className={styles.head}>
       <Poster movie={movie} size="large" />
       <div>
-        <h1 className={styles.title}>{movie.title}</h1>
+        <h1 ref={titleRef} tabIndex={-1} className={styles.title}>
+          {movie.title}
+        </h1>
         <p className={styles.details}>{details.join(" · ")}</p>
       </div>
     </header>

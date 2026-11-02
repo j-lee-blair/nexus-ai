@@ -6,6 +6,7 @@ import type { AvailabilityData, ErrorCode } from "@/contracts/api";
 import { getAvailability } from "@/ui/api-client";
 import { availabilitySummary } from "@/ui/format";
 import { useConvergeReveal } from "@/ui/reveal/useConvergeReveal";
+import { isSplitView } from "@/ui/screen-size";
 import { useSelectedMovie } from "@/ui/selected-movie";
 import { AnswerView, MovieHeader } from "./AnswerView";
 import { Problem } from "./Problem";
@@ -34,6 +35,7 @@ export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
   const selectedMovie = useSelectedMovie(movieId);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const answerRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
   let cached = false;
   if (state.status === "ready") {
@@ -92,6 +94,17 @@ export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
     movie = state.availability.movie;
   }
 
+  // In the split view the answer appears beside the search, so keyboard and screen-reader users
+  // would not notice it changed. Move focus to the movie's title once it shows, so the next Tab
+  // reaches the services. Phones open a new screen, which already starts from the top.
+  const isTitleShown = movie !== null;
+  useEffect(() => {
+    if (!isTitleShown || !isSplitView()) {
+      return;
+    }
+    titleRef.current?.focus();
+  }, [isTitleShown]);
+
   let backHref = "/";
   let backLabel = "New search";
   if (query !== "") {
@@ -114,7 +127,7 @@ export function AnswerScreen({ movieId, query }: AnswerScreenProps) {
         </Link>
       </header>
 
-      {movie !== null && <MovieHeader movie={movie} />}
+      {movie !== null && <MovieHeader movie={movie} titleRef={titleRef} />}
 
       <div ref={answerRef} aria-busy={isBusy} className={styles.region}>
         <AnswerContent state={state} isSlow={isSlow} onRetry={tryAgain} searchHref={searchHref} />
