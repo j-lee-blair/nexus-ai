@@ -13,6 +13,15 @@ export const API_ROUTES = {
 /** Queries shorter than this are rejected with `invalid_query`, so they never cost credits. */
 export const MIN_QUERY_LENGTH = 3;
 
+/**
+ * Searches ignore surrounding spaces and letter case, so "Matrix " and "matrix" are the same
+ * search. Used by the server cache and the browser's memory of the last search.
+ */
+export function normaliseSearchQuery(query: string): string {
+  const trimmed = query.trim();
+  return trimmed.toLowerCase();
+}
+
 export interface SearchData {
   query: string;
   /** Empty when nothing matches. That is a normal answer, not an error. */
