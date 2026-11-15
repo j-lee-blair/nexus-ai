@@ -45,12 +45,17 @@ export function canUseRecordedAnswers(env: NodeJS.ProcessEnv): boolean {
  * Otherwise no credits are spent: the recorded fixtures answer where that is allowed, and
  * everywhere else (the public site) every lookup is "provider unavailable".
  */
-export function getWatchmodeGateway(env: NodeJS.ProcessEnv = process.env): WatchmodeGateway {
+export function isLiveWatchmode(env: NodeJS.ProcessEnv): boolean {
   const liveCallsOn = env.WATCHMODE_LIVE_CALLS === "on";
   const killSwitchOn = env.WATCHMODE_KILL_SWITCH === "on";
+  const hasApiKey = Boolean(env.WATCHMODE_API_KEY);
+  return liveCallsOn && !killSwitchOn && hasApiKey;
+}
+
+export function getWatchmodeGateway(env: NodeJS.ProcessEnv = process.env): WatchmodeGateway {
   const apiKey = env.WATCHMODE_API_KEY;
 
-  if (!liveCallsOn || killSwitchOn || !apiKey) {
+  if (!isLiveWatchmode(env) || !apiKey) {
     if (canUseRecordedAnswers(env)) {
       return createFixtureGateway();
     }

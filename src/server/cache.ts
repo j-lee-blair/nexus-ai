@@ -25,7 +25,7 @@ export interface Remembered<T> {
  * The cache only makes answers faster, so a failing store never stops an answer: a failed read
  * counts as "not cached", and a failed write still returns the value that was just paid for.
  */
-export function createCache(store: KeyValueStore, now: () => Date = () => new Date()) {
+export function createCache(store: KeyValueStore, now: () => Date = () => new Date(), keyPrefix = "") {
   const loadsInProgress = new Map<string, Promise<Remembered<unknown>>>();
 
   async function loadAndStore<T>(key: string, ttlSeconds: number, load: () => Promise<T>) {
@@ -33,7 +33,7 @@ export function createCache(store: KeyValueStore, now: () => Date = () => new Da
     const storedAt = now().toISOString();
     const stored: StoredValue<T> = { value, storedAt };
     try {
-      await store.set(key, stored, ttlSeconds);
+      await store.set(keyPrefix + key, stored, ttlSeconds);
     } catch (error) {
       console.error("cache.write_failed", key, error);
     }
@@ -43,7 +43,7 @@ export function createCache(store: KeyValueStore, now: () => Date = () => new Da
   async function remember<T>(key: string, ttlSeconds: number, load: () => Promise<T>): Promise<Remembered<T>> {
     let stored: StoredValue<T> | null = null;
     try {
-      stored = await store.get<StoredValue<T>>(key);
+      stored = await store.get<StoredValue<T>>(keyPrefix + key);
     } catch (error) {
       console.error("cache.read_failed", key, error);
     }

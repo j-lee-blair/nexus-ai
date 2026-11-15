@@ -1,6 +1,6 @@
 import { createCache, type Cache } from "@/server/cache";
 import { getStore } from "@/server/store";
-import { getWatchmodeGateway } from "@/server/watchmode";
+import { getWatchmodeGateway, isLiveWatchmode } from "@/server/watchmode";
 import { limitPerVisitor } from "@/server/visitor-limit";
 import { createMockDataSource } from "./mock";
 import type { DataSource } from "./types";
@@ -9,12 +9,25 @@ import { createWatchmodeDataSource } from "./watchmode-source";
 export type { DataSource, SourceResult } from "./types";
 
 let mock: DataSource | undefined;
-// One cache per server instance, so identical requests in flight share a single provider call.
-let cache: Cache | undefined;
+// One cache per server instance (and per kind of data), so identical requests in flight share a
+// single provider call.
+const caches = new Map<string, Cache>();
 
+/**
+ * Live and recorded answers are cached under different key prefixes. Previews and production
+ * share one Redis, so without this a recorded answer cached by a preview would be served on the
+ * public site as if it were current.
+ */
 function getCache(env: NodeJS.ProcessEnv): Cache {
+  let keyPrefix = "recorded:";
+  if (isLiveWatchmode(env)) {
+    keyPrefix = "live:";
+  }
+
+  let cache = caches.get(keyPrefix);
   if (cache === undefined) {
-    cache = createCache(getStore(env));
+    cache = createCache(getStore(env), () => new Date(), keyPrefix);
+    caches.set(keyPrefix, cache);
   }
   return cache;
 }
