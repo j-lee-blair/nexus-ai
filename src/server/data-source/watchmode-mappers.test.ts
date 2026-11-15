@@ -1,5 +1,14 @@
-import { describe, expect, it } from "vitest";
-import { toOffer, type WatchmodeSource } from "./watchmode-mappers";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { DataSourceError } from "@/server/errors";
+import {
+  toMovieFromDetails,
+  toMovies,
+  toOffer,
+  toOffers,
+  type WatchmodeSearchResponse,
+  type WatchmodeSource,
+  type WatchmodeTitleDetails,
+} from "./watchmode-mappers";
 
 const base: WatchmodeSource = {
   source_id: 349,
@@ -41,5 +50,42 @@ describe("toOffer", () => {
     const offer = toOffer({ ...base, web_url: "Deeplinks available for paid plans only." });
 
     expect(offer?.url).toBeNull();
+  });
+});
+
+describe("unexpected Watchmode responses", () => {
+  // Silences the error log these cases write on purpose.
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  it("treats a search body without title_results as a provider failure, not as no results", () => {
+    const body = {} as WatchmodeSearchResponse;
+
+    expect(() => toMovies(body)).toThrow(DataSourceError);
+  });
+
+  it("treats a search result without a name as a provider failure", () => {
+    const body = { title_results: [{ id: 1, type: "movie" }] } as unknown as WatchmodeSearchResponse;
+
+    expect(() => toMovies(body)).toThrow(DataSourceError);
+  });
+
+  it("treats a sources body that isn't a list as a provider failure", () => {
+    const body = { message: "nope" } as unknown as WatchmodeSource[];
+
+    expect(() => toOffers(body)).toThrow(DataSourceError);
+  });
+
+  it("treats a source with a price that isn't a number as a provider failure", () => {
+    const body = [{ ...base, price: "39" }] as unknown as WatchmodeSource[];
+
+    expect(() => toOffers(body)).toThrow(DataSourceError);
+  });
+
+  it("treats title details without a title as a provider failure", () => {
+    const body = { id: 1 } as unknown as WatchmodeTitleDetails;
+
+    expect(() => toMovieFromDetails(body)).toThrow(DataSourceError);
   });
 });

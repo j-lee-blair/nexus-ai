@@ -86,4 +86,28 @@ describe("live Watchmode gateway", () => {
 
     await expect(call).rejects.toMatchObject({ code: "not_found" });
   });
+
+  it("reports provider_unavailable when Watchmode sends something that isn't JSON", async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => new Response("<html>oops</html>", { status: 200 }));
+    const { gateway } = setUp(fetchImpl);
+
+    const call = gateway.request(search);
+
+    await expect(call).rejects.toMatchObject({ code: "provider_unavailable" });
+  });
+
+  it("makes no call when the credit counter can't be reached", async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => jsonResponse({}));
+    const store = createMemoryStore();
+    store.incrementBy = async () => {
+      throw new Error("Redis is down");
+    };
+    const budget = createCreditBudget(store, { dailyCap: 60, monthlyCap: 2000 });
+    const gateway = createLiveGateway({ apiKey: "secret-key", budget, fetchImpl, log: vi.fn() });
+
+    const call = gateway.request(search);
+
+    await expect(call).rejects.toMatchObject({ code: "provider_unavailable" });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
 });

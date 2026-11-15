@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createCache } from "./cache";
 import { createMemoryStore } from "./store";
 
@@ -52,5 +52,33 @@ describe("cache", () => {
 
     const retry = await cache.remember("key", 60, async () => "answer");
     expect(retry.cached).toBe(false);
+  });
+
+  describe("when the store fails", () => {
+    function failingStore() {
+      const store = createMemoryStore();
+      store.get = async () => {
+        throw new Error("Redis is down");
+      };
+      store.set = async () => {
+        throw new Error("Redis is down");
+      };
+      return store;
+    }
+
+    // Silences the error log these cases write on purpose.
+    beforeEach(() => {
+      vi.spyOn(console, "error").mockImplementation(() => {});
+    });
+
+    it("still loads and returns the answer, as not cached", async () => {
+      const cache = createCache(failingStore());
+      const load = vi.fn(async () => "answer");
+
+      const result = await cache.remember("key", 60, load);
+
+      expect(result).toMatchObject({ value: "answer", cached: false });
+      expect(load).toHaveBeenCalledTimes(1);
+    });
   });
 });
