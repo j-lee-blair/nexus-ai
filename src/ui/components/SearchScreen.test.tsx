@@ -52,7 +52,7 @@ describe("SearchScreen", () => {
   it("starts with a hint and no results", () => {
     render(<SearchScreen initialQuery="" />);
 
-    expect(screen.getByText("Type a movie title, in Swedish or the original language.")).toBeTruthy();
+    expect(screen.getByText("Type a movie title.")).toBeTruthy();
     expect(screen.queryByRole("list", { name: "Search results" })).toBeNull();
   });
 
