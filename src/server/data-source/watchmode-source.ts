@@ -2,6 +2,7 @@ import { groupOffers } from "@/domain/group-offers";
 import type { Availability, Movie } from "@/domain/types";
 import { AVAILABILITY_TTL_SECONDS, SEARCH_TTL_SECONDS, type Cache } from "@/server/cache";
 import { availabilityCacheKey, movieCacheKey, searchCacheKey } from "@/server/cache-keys";
+import { DataSourceError } from "@/server/errors";
 import type { WatchmodeGateway, WatchmodeRequest } from "@/server/watchmode";
 import type { DataSource } from "./types";
 import {
@@ -17,6 +18,17 @@ import {
 // Movies seen in search results are remembered as long as searches, so opening a result never
 // needs an extra details call.
 const MOVIE_TTL_SECONDS = SEARCH_TTL_SECONDS;
+
+// Watchmode title ids are whole numbers. Checking this before any call keeps visitor input out of
+// the Watchmode URL path (so "../search" can never reach another endpoint) and spends no credits
+// on ids that cannot exist.
+const WATCHMODE_ID_PATTERN = /^[0-9]+$/;
+
+function checkMovieId(movieId: string) {
+  if (!WATCHMODE_ID_PATTERN.test(movieId)) {
+    throw new DataSourceError("not_found", "Not a Watchmode title id.");
+  }
+}
 
 function searchRequest(query: string): WatchmodeRequest {
   return { path: "/search/", params: { search_field: "name", search_value: query }, credits: 1 };
@@ -65,6 +77,7 @@ export function createWatchmodeDataSource(gateway: WatchmodeGateway, cache: Cach
     },
 
     async availability(movieId) {
+      checkMovieId(movieId);
       const key = availabilityCacheKey(movieId);
 
       const remembered = await cache.remember(key, AVAILABILITY_TTL_SECONDS, async () => {

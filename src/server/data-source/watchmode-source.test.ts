@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { OfferGroup } from "@/domain/types";
 import { createCache } from "@/server/cache";
 import { createMemoryStore } from "@/server/store";
+import type { WatchmodeGateway } from "@/server/watchmode";
 import { createFixtureGateway } from "@/server/watchmode/fixture-gateway";
 import { createWatchmodeDataSource } from "./watchmode-source";
 
@@ -132,5 +133,16 @@ describe("Watchmode data source: availability (F5)", () => {
     const lookup = source.availability("999999999");
 
     await expect(lookup).rejects.toMatchObject({ code: "provider_unavailable" });
+  });
+
+  it("rejects an id that isn't a Watchmode number as not_found, without asking Watchmode", async () => {
+    const request = vi.fn();
+    const gateway = { request } as unknown as WatchmodeGateway;
+    const source = createWatchmodeDataSource(gateway, createCache(createMemoryStore()));
+
+    const lookup = source.availability("../search");
+
+    await expect(lookup).rejects.toMatchObject({ code: "not_found" });
+    expect(request).not.toHaveBeenCalled();
   });
 });

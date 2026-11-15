@@ -111,6 +111,15 @@ describe("API routes with the mock data source", () => {
     expect(expectFailure(body).code).toBe("provider_unavailable");
   });
 
+  it("returns 404 not_found for a path-like movie id from Watchmode, before any lookup", async () => {
+    vi.stubEnv("NEXUS_DATA_SOURCE", "");
+
+    const { status, body } = await callAvailability("..%2Fsearch");
+
+    expect(status).toBe(404);
+    expect(expectFailure(body).code).toBe("not_found");
+  });
+
   it("never serves mock data on Vercel production", async () => {
     vi.stubEnv("VERCEL_ENV", "production");
 

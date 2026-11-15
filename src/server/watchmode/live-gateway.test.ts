@@ -77,4 +77,13 @@ describe("live Watchmode gateway", () => {
 
     await expect(call).rejects.toMatchObject({ code: "provider_unavailable" });
   });
+
+  it("reports not_found when Watchmode doesn't know the title id", async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => jsonResponse({ success: false }, 404));
+    const { gateway } = setUp(fetchImpl);
+
+    const call = gateway.request({ path: "/title/1/details/", params: {}, credits: 1 });
+
+    await expect(call).rejects.toMatchObject({ code: "not_found" });
+  });
 });

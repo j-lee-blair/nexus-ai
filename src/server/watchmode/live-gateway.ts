@@ -51,6 +51,13 @@ export function createLiveGateway(options: LiveGatewayOptions): WatchmodeGateway
         throw new DataSourceError("provider_unavailable", PROVIDER_UNAVAILABLE_MESSAGE);
       }
 
+      // Watchmode answers 404 for a title id it doesn't know: that is the visitor's "not found",
+      // not a provider failure.
+      if (response.status === 404) {
+        log("watchmode.not_found", { path: request.path });
+        throw new DataSourceError("not_found", "Watchmode doesn't know this title id.");
+      }
+
       if (!response.ok) {
         log("watchmode.error", { path: request.path, status: response.status });
         throw new DataSourceError("provider_unavailable", PROVIDER_UNAVAILABLE_MESSAGE);
