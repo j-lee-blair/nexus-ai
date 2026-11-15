@@ -14,6 +14,12 @@ export const API_ROUTES = {
 export const MIN_QUERY_LENGTH = 3;
 
 /**
+ * Longer queries are rejected with `invalid_query`. Real movie titles fit easily; the limit keeps
+ * huge strings out of Watchmode calls and cache keys.
+ */
+export const MAX_QUERY_LENGTH = 100;
+
+/**
  * Searches ignore surrounding spaces and letter case, so "Matrix " and "matrix" are the same
  * search. Used by the server cache and the browser's memory of the last search.
  */
@@ -31,7 +37,7 @@ export interface SearchData {
 export type AvailabilityData = Availability;
 
 export type ErrorCode =
-  | "invalid_query" // 400: query missing or shorter than MIN_QUERY_LENGTH
+  | "invalid_query" // 400: query missing, shorter than MIN_QUERY_LENGTH or longer than MAX_QUERY_LENGTH
   | "not_found" // 404: unknown movie id
   | "rate_limited" // 429: this visitor made too many fresh lookups
   | "quota_reached" // 503: Nexus's daily or monthly provider budget is used up

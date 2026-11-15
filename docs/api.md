@@ -23,9 +23,9 @@ from `src/ui/problems.ts`, chosen by `code`.
 
 | Code | HTTP | Meaning |
 |---|---|---|
-| `invalid_query` | 400 | Query missing or shorter than 3 characters |
+| `invalid_query` | 400 | Query missing, shorter than 3 characters or longer than 100 |
 | `not_found` | 404 | Unknown movie id |
-| `rate_limited` | 429 | This visitor made too many fresh lookups |
+| `rate_limited` | 429 | This visitor made more than 20 Watchmode calls this hour (cached answers never count) |
 | `quota_reached` | 503 | Nexus's daily or monthly provider budget is used up |
 | `provider_unavailable` | 503 | The data provider failed, timed out, or isn't connected |
 

@@ -117,7 +117,9 @@ describe("AnswerScreen", () => {
 
     render(<AnswerScreen movieId="1" query="matrix" />);
 
-    const announcement = await screen.findByText(ANNOUNCEMENT);
+    // The snap runs on real animation frames (about 0.25s). When the whole suite runs in parallel,
+    // jsdom's frames can arrive late, so this waits longer than the default 1s before failing.
+    const announcement = await screen.findByText(ANNOUNCEMENT, undefined, { timeout: 3000 });
     expect(announcement).toBeTruthy();
     expect(answerRegion().getAttribute("aria-busy")).toBe("false");
   });

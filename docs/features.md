@@ -75,6 +75,34 @@ Built in three small steps, each its own pull request that leaves the app workin
 Doing it in one pull request is possible, but three steps fit the 1–2 hours of review a week, keep
 each change easy to check against phone behaviour, and let F14a ship on its own if time runs out.
 
+## F13: go public
+
+Agreed with the maintainer on 2026-11-15. Nexus goes online with live Watchmode data, for anyone,
+without signing up.
+
+**What it does:** the public URL answers "Where can I stream this?" for movies in Sweden from live
+Watchmode data, cached as in F3 and capped at 60 credits a day and 2,000 a month (ADR 0002).
+
+**What must keep working:** search, results, the answer grouped Included / Free / Rent / Buy with
+prices cheapest first, Discovery and Ignite (with tap to skip and reduced motion), every error
+screen from F9, the split view (F14), the credit caps and the kill switch.
+
+**Before going public**, four review findings are fixed, each in its own commit:
+
+| Step | What changes | Done when |
+|---|---|---|
+| **3a: Movie id** | The availability endpoint accepts digits only. Anything else gives `not_found` without calling Watchmode, and so does an id Watchmode doesn't know. | A path such as `..%2Fsearch` never reaches Watchmode; tests cover both cases. |
+| **3b: Visitor limits** | Searches have a maximum length, and F10 limits each visitor to about 20 fresh lookups an hour. | A too-long search gives `invalid_query`; the 21st fresh lookup in an hour gives `rate_limited`. |
+| **3c: Failing services** | Redis and Watchmode errors are caught, calls have timeouts, and a Watchmode body with an unexpected shape is an error, never cached as "no movies". | Tests with a failing store and a malformed body. |
+| **3d: Real data only** | Production never answers from made-up or recorded data. Without live calls it says "provider unavailable". Faker is a dev-only dependency. | A production test with live calls off returns `provider_unavailable`. |
+
+Then: an automatic CI check on GitHub (test, lint, typecheck, build) that must pass before merging
+to `main`; Vercel deploys `main` with secrets only in its Production settings (none with a
+`NEXT_PUBLIC_` prefix); a check of the live site; and a README for newcomers.
+
+**Known limitation:** titles come from Watchmode in English. Swedish titles need TMDB (F11) and are
+left for later.
+
 ## Rules that keep features independent
 
 - UI code never sees Watchmode or TMDB formats, only F0 types.

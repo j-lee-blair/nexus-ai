@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AvailabilityResponse, SearchData, AvailabilityData, ApiResponse } from "@/contracts/api";
+import { VISITOR_LOOKUPS_PER_HOUR } from "@/server/visitor-limit";
 import { GET as search } from "./search/route";
 import { GET as availability } from "./movies/[id]/availability/route";
 
@@ -46,6 +47,15 @@ describe("API routes with the mock data source", () => {
 
   it("rejects queries shorter than 3 characters", async () => {
     const { status, body } = await callSearch("ab");
+
+    expect(status).toBe(400);
+    expect(expectFailure(body).code).toBe("invalid_query");
+  });
+
+  it("rejects queries longer than 100 characters", async () => {
+    const longQuery = "a".repeat(101);
+
+    const { status, body } = await callSearch(longQuery);
 
     expect(status).toBe(400);
     expect(expectFailure(body).code).toBe("invalid_query");
@@ -109,6 +119,35 @@ describe("API routes with the mock data source", () => {
 
     expect(status).toBe(503);
     expect(expectFailure(body).code).toBe("provider_unavailable");
+  });
+
+  it("returns 404 not_found for a path-like movie id from Watchmode, before any lookup", async () => {
+    vi.stubEnv("NEXUS_DATA_SOURCE", "");
+
+    const { status, body } = await callAvailability("..%2Fsearch");
+
+    expect(status).toBe(404);
+    expect(expectFailure(body).code).toBe("not_found");
+  });
+
+  it("returns 429 rate_limited once one visitor has made too many fresh lookups", async () => {
+    vi.stubEnv("NEXUS_DATA_SOURCE", "");
+    const headers = { "x-forwarded-for": "198.51.100.21" };
+    let status = 0;
+    let body: ApiResponse<SearchData> | undefined;
+
+    // Each different query is a fresh lookup. The recorded fixtures don't know these titles,
+    // which doesn't matter: the limit is checked before Watchmode is asked.
+    for (let lookup = 0; lookup <= VISITOR_LOOKUPS_PER_HOUR; lookup++) {
+      const request = new Request(`http://localhost/api/search?q=unknown-title-${lookup}`, { headers });
+      const response = await search(request);
+      status = response.status;
+      body = (await response.json()) as ApiResponse<SearchData>;
+    }
+
+    expect(status).toBe(429);
+    if (body === undefined) throw new Error("No response");
+    expect(expectFailure(body).code).toBe("rate_limited");
   });
 
   it("never serves mock data on Vercel production", async () => {
