@@ -184,6 +184,25 @@ describe("API routes with the mock data source", () => {
     expect(expectSuccess(body).data.results.length).toBeGreaterThan(0);
   });
 
+  it("never serves a recorded answer cached by a preview on the live site, which shares the store", async () => {
+    vi.spyOn(console, "info").mockImplementation(() => {});
+    vi.stubEnv("NEXUS_DATA_SOURCE", "");
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "preview");
+    const preview = await callSearch("Triangle of Sadness");
+    expect(preview.status).toBe(200);
+
+    // Now live, as on the public site. Tests block the network, so a live lookup fails: that
+    // proves the answer would have to come from Watchmode, not from the preview's cache.
+    vi.stubEnv("VERCEL_ENV", "production");
+    vi.stubEnv("WATCHMODE_LIVE_CALLS", "on");
+    vi.stubEnv("WATCHMODE_API_KEY", "test-key-not-real");
+    const live = await callSearch("Triangle of Sadness");
+
+    expect(live.status).toBe(503);
+    expect(expectFailure(live.body).code).toBe("provider_unavailable");
+  });
+
   it("stops every lookup on the public site when the kill switch is on", async () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     vi.stubEnv("NEXUS_DATA_SOURCE", "");
