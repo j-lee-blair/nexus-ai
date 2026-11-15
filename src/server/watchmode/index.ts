@@ -2,6 +2,7 @@ import { getStore } from "@/server/store";
 import { createCreditBudget } from "./credit-budget";
 import { createFixtureGateway } from "./fixture-gateway";
 import { createLiveGateway } from "./live-gateway";
+import { createUnavailableGateway } from "./unavailable-gateway";
 import type { WatchmodeGateway } from "./types";
 
 export type { WatchmodeGateway, WatchmodeRequest, CreditUsage } from "./types";
@@ -26,11 +27,23 @@ export function getCreditBudget(env: NodeJS.ProcessEnv = process.env) {
 }
 
 /**
+ * Recorded answers are months old, so visitors must never see them as current availability.
+ * They are allowed in development and tests, and on Vercel previews, which only people signed
+ * in to the project's Vercel account can open.
+ */
+export function canUseRecordedAnswers(env: NodeJS.ProcessEnv): boolean {
+  const isProductionBuild = env.NODE_ENV === "production";
+  const isVercelPreview = env.VERCEL_ENV === "preview";
+  return !isProductionBuild || isVercelPreview;
+}
+
+/**
  * Live Watchmode only when every safety switch allows it (ADR 0002):
  * - WATCHMODE_LIVE_CALLS must be "on" (off by default),
  * - WATCHMODE_KILL_SWITCH must not be "on",
  * - WATCHMODE_API_KEY must be set.
- * Otherwise the recorded fixtures answer, and no credits are spent.
+ * Otherwise no credits are spent: the recorded fixtures answer where that is allowed, and
+ * everywhere else (the public site) every lookup is "provider unavailable".
  */
 export function getWatchmodeGateway(env: NodeJS.ProcessEnv = process.env): WatchmodeGateway {
   const liveCallsOn = env.WATCHMODE_LIVE_CALLS === "on";
@@ -38,7 +51,10 @@ export function getWatchmodeGateway(env: NodeJS.ProcessEnv = process.env): Watch
   const apiKey = env.WATCHMODE_API_KEY;
 
   if (!liveCallsOn || killSwitchOn || !apiKey) {
-    return createFixtureGateway();
+    if (canUseRecordedAnswers(env)) {
+      return createFixtureGateway();
+    }
+    return createUnavailableGateway();
   }
 
   return createLiveGateway({

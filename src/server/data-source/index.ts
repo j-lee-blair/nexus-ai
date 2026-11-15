@@ -29,16 +29,16 @@ function getMockDataSource(env: NodeJS.ProcessEnv): DataSource {
 
 /**
  * Picks the data source for one visitor's request.
- * - NEXUS_DATA_SOURCE=mock: made-up movies for UI work. Refused on Vercel production so real
- *   users never see invented movies or prices.
+ * - NEXUS_DATA_SOURCE=mock: made-up movies for UI work. Only in development and tests (never in
+ *   a production build, including Vercel previews), so nobody sees invented movies or prices.
  * - Otherwise: Watchmode. Whether that means live calls or recorded fixtures is decided by the
  *   Watchmode gateway's safety switches (ADR 0002), and each visitor's calls are limited per hour.
  */
 export function getDataSource(visitorId: string, env: NodeJS.ProcessEnv = process.env): DataSource {
   const wantsMock = env.NEXUS_DATA_SOURCE === "mock";
-  const isProduction = env.VERCEL_ENV === "production";
+  const isProductionBuild = env.NODE_ENV === "production";
 
-  if (wantsMock && !isProduction) {
+  if (wantsMock && !isProductionBuild) {
     return getMockDataSource(env);
   }
 

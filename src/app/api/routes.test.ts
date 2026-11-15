@@ -150,11 +150,53 @@ describe("API routes with the mock data source", () => {
     expect(expectFailure(body).code).toBe("rate_limited");
   });
 
-  it("never serves mock data on Vercel production", async () => {
+  it("never serves mock data in a production build", async () => {
+    vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("VERCEL_ENV", "production");
 
-    const { status } = await callSearch("ferry");
+    const { status, body } = await callSearch("ferry");
 
     expect(status).toBe(503);
+    expect(expectFailure(body).code).toBe("provider_unavailable");
+  });
+
+  it("never serves recorded answers on the public site when live calls are off", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.stubEnv("NEXUS_DATA_SOURCE", "");
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "production");
+
+    // "Oppenheimer" has a recorded answer, which development would serve.
+    const { status, body } = await callSearch("Oppenheimer");
+
+    expect(status).toBe(503);
+    expect(expectFailure(body).code).toBe("provider_unavailable");
+  });
+
+  it("serves recorded answers on a Vercel preview when live calls are off", async () => {
+    vi.stubEnv("NEXUS_DATA_SOURCE", "");
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "preview");
+
+    const { status, body } = await callSearch("Parasite");
+
+    expect(status).toBe(200);
+    expect(expectSuccess(body).data.results.length).toBeGreaterThan(0);
+  });
+
+  it("stops every lookup on the public site when the kill switch is on", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.stubEnv("NEXUS_DATA_SOURCE", "");
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "production");
+    vi.stubEnv("WATCHMODE_LIVE_CALLS", "on");
+    vi.stubEnv("WATCHMODE_API_KEY", "test-key-not-real");
+    vi.stubEnv("WATCHMODE_KILL_SWITCH", "on");
+
+    // A title no other test searched for: answers already in the cache are real and still served.
+    const { status, body } = await callSearch("Spirited Away");
+
+    expect(status).toBe(503);
+    expect(expectFailure(body).code).toBe("provider_unavailable");
   });
 });
