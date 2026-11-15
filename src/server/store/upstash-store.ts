@@ -1,9 +1,18 @@
 import { Redis } from "@upstash/redis";
 import type { KeyValueStore } from "./types";
 
+// A slow Redis must not hold up the answer for long: each command gives up after this time,
+// with one retry, and the caller then carries on without the cache (see cache.ts).
+const COMMAND_TIMEOUT_MS = 1500;
+
 /** Upstash Redis over HTTPS, so it works from Vercel functions without a persistent connection. */
 export function createUpstashStore(url: string, token: string): KeyValueStore {
-  const redis = new Redis({ url, token });
+  const redis = new Redis({
+    url,
+    token,
+    signal: () => AbortSignal.timeout(COMMAND_TIMEOUT_MS),
+    retry: { retries: 1 },
+  });
 
   return {
     async get<T>(key: string) {

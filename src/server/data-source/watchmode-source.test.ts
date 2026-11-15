@@ -145,4 +145,20 @@ describe("Watchmode data source: availability (F5)", () => {
     await expect(lookup).rejects.toMatchObject({ code: "not_found" });
     expect(request).not.toHaveBeenCalled();
   });
+
+  it("doesn't cache an unexpected Watchmode body as no results", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const request = vi.fn();
+    request.mockResolvedValueOnce({ unexpected: true });
+    request.mockResolvedValueOnce({ title_results: [] });
+    const gateway = { request } as unknown as WatchmodeGateway;
+    const source = createWatchmodeDataSource(gateway, createCache(createMemoryStore()));
+
+    const first = source.search("Parasite");
+    await expect(first).rejects.toMatchObject({ code: "provider_unavailable" });
+    const second = await source.search("Parasite");
+
+    expect(second.cached).toBe(false);
+    expect(request).toHaveBeenCalledTimes(2);
+  });
 });
