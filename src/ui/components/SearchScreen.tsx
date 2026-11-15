@@ -100,7 +100,7 @@ interface SearchHintProps {
 
 /** One status line under the input. It is a live region, so screen readers hear changes. */
 function SearchHint({ query, isLongEnough, state }: SearchHintProps) {
-  let text = "Type a movie title, in Swedish or the original language.";
+  let text = "Type a movie title.";
 
   if (query.length > 0 && !isLongEnough) {
     text = `Type at least ${MIN_QUERY_LENGTH} letters.`;
