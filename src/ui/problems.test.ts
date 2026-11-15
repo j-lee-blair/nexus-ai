@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ErrorCode } from "@/contracts/api";
+import { MIN_QUERY_LENGTH, type ErrorCode } from "@/contracts/api";
 import { describeProblem, formatWait } from "./problems";
 
 describe("describeProblem", () => {
@@ -12,6 +12,12 @@ describe("describeProblem", () => {
       expect(problem.title.length).toBeGreaterThan(0);
       expect(problem.detail.length).toBeGreaterThan(0);
     }
+  });
+
+  it("names the real minimum query length", () => {
+    const problem = describeProblem("invalid_query");
+
+    expect(problem.detail).toContain(`at least ${MIN_QUERY_LENGTH} letters`);
   });
 
   it("only offers Try again when trying again straight away can help", () => {

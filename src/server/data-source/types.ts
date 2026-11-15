@@ -1,4 +1,3 @@
-import type { ErrorCode } from "@/contracts/api";
 import type { Availability, Movie } from "@/domain/types";
 
 export interface SourceResult<T> {
@@ -16,16 +15,4 @@ export interface DataSource {
   search(query: string): Promise<SourceResult<Movie[]>>;
   /** Rejects with DataSourceError("not_found") for unknown ids. */
   availability(movieId: string): Promise<SourceResult<Availability>>;
-}
-
-/** An expected failure that maps directly onto an API error code. */
-export class DataSourceError extends Error {
-  constructor(
-    readonly code: ErrorCode,
-    message: string,
-    readonly retryAfterSeconds?: number,
-  ) {
-    super(message);
-    this.name = "DataSourceError";
-  }
 }

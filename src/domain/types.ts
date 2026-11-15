@@ -30,6 +30,11 @@ export type OfferType = "subscription" | "free" | "rent" | "buy";
 /** Display order of offer groups on the answer screen. */
 export const OFFER_TYPE_ORDER: readonly OfferType[] = ["subscription", "free", "rent", "buy"];
 
+/** Rent and buy cost money per movie, so they carry a price and are sorted cheapest first. */
+export function isPaidOfferType(type: OfferType): boolean {
+  return type === "rent" || type === "buy";
+}
+
 export type VideoQuality = "SD" | "HD" | "4K";
 
 export interface Price {

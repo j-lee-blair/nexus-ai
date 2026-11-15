@@ -1,6 +1,7 @@
 import { groupOffers } from "@/domain/group-offers";
+import { DataSourceError } from "@/server/errors";
 import { MOCK_TRIGGERS, mockMovieById, mockSearch, toSearchKey } from "./mock-catalog";
-import { DataSourceError, type DataSource } from "./types";
+import type { DataSource } from "./types";
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

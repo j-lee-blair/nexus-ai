@@ -1,6 +1,7 @@
 import { groupOffers } from "@/domain/group-offers";
 import type { Availability, Movie } from "@/domain/types";
 import { AVAILABILITY_TTL_SECONDS, SEARCH_TTL_SECONDS, type Cache } from "@/server/cache";
+import { availabilityCacheKey, movieCacheKey, searchCacheKey } from "@/server/cache-keys";
 import type { WatchmodeGateway, WatchmodeRequest } from "@/server/watchmode";
 import type { DataSource } from "./types";
 import {
@@ -29,10 +30,6 @@ function detailsRequest(movieId: string): WatchmodeRequest {
   return { path: `/title/${movieId}/details/`, params: {}, credits: 1 };
 }
 
-function normaliseQuery(query: string): string {
-  return query.trim().toLowerCase();
-}
-
 /**
  * Answers searches and availability from Watchmode (live or fixtures, decided by the gateway),
  * through the cache. Costs per new movie: 1 credit per new search, 1 per availability lookup.
@@ -40,12 +37,12 @@ function normaliseQuery(query: string): string {
 export function createWatchmodeDataSource(gateway: WatchmodeGateway, cache: Cache): DataSource {
   async function rememberMovies(movies: Movie[]) {
     for (const movie of movies) {
-      await cache.remember(`movie:v1:${movie.id}`, MOVIE_TTL_SECONDS, async () => movie);
+      await cache.remember(movieCacheKey(movie.id), MOVIE_TTL_SECONDS, async () => movie);
     }
   }
 
   async function findMovie(movieId: string): Promise<Movie> {
-    const remembered = await cache.remember(`movie:v1:${movieId}`, MOVIE_TTL_SECONDS, async () => {
+    const remembered = await cache.remember(movieCacheKey(movieId), MOVIE_TTL_SECONDS, async () => {
       const details = await gateway.request<WatchmodeTitleDetails>(detailsRequest(movieId));
       return toMovieFromDetails(details);
     });
@@ -54,7 +51,7 @@ export function createWatchmodeDataSource(gateway: WatchmodeGateway, cache: Cach
 
   return {
     async search(query) {
-      const key = `search:v1:${normaliseQuery(query)}`;
+      const key = searchCacheKey(query);
 
       const remembered = await cache.remember(key, SEARCH_TTL_SECONDS, async () => {
         const response = await gateway.request<WatchmodeSearchResponse>(searchRequest(query.trim()));
@@ -64,11 +61,11 @@ export function createWatchmodeDataSource(gateway: WatchmodeGateway, cache: Cach
       if (!remembered.cached) {
         await rememberMovies(remembered.value);
       }
-      return { data: remembered.value, cached: remembered.cached, checkedAt: remembered.storedAt };
+      return { data: remembered.value, cached: remembered.cached, checkedAt: remembered.checkedAt };
     },
 
     async availability(movieId) {
-      const key = `availability:v1:${movieId}`;
+      const key = availabilityCacheKey(movieId);
 
       const remembered = await cache.remember(key, AVAILABILITY_TTL_SECONDS, async () => {
         const movie = await findMovie(movieId);
@@ -81,7 +78,7 @@ export function createWatchmodeDataSource(gateway: WatchmodeGateway, cache: Cach
         return availability;
       });
 
-      return { data: remembered.value, cached: remembered.cached, checkedAt: remembered.storedAt };
+      return { data: remembered.value, cached: remembered.cached, checkedAt: remembered.checkedAt };
     },
   };
 }

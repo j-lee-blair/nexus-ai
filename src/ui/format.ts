@@ -1,7 +1,7 @@
 // Turns answer data into the words and numbers shown on screen.
 // Pure functions only, so they are easy to test and reuse in the Converge reveal (F8).
 
-import type { Offer, OfferGroup, OfferType, Price } from "@/domain/types";
+import type { Movie, Offer, OfferGroup, OfferType, Price } from "@/domain/types";
 
 const GROUP_LABELS: Record<OfferType, string> = {
   subscription: "Included with subscription",
@@ -12,6 +12,21 @@ const GROUP_LABELS: Record<OfferType, string> = {
 
 export function groupLabel(type: OfferType): string {
   return GROUP_LABELS[type];
+}
+
+/**
+ * The line under a movie's title that tells similar titles apart: "1999 · Matrix", or just the
+ * year. The original title is only shown when it differs from the title.
+ */
+export function movieDetails(movie: Movie): string {
+  const details: string[] = [];
+  if (movie.year !== null) {
+    details.push(String(movie.year));
+  }
+  if (movie.originalTitle !== null && movie.originalTitle !== movie.title) {
+    details.push(movie.originalTitle);
+  }
+  return details.join(" · ");
 }
 
 /** "49 kr" for SEK. Whole amounts drop the decimals; others keep two. */

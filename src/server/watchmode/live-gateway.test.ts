@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { DataSourceError } from "@/server/data-source/types";
+import { DataSourceError } from "@/server/errors";
 import { createMemoryStore } from "@/server/store";
 import { createCreditBudget } from "./credit-budget";
 import { createLiveGateway } from "./live-gateway";

@@ -1,7 +1,7 @@
 // Translates Watchmode's response shapes into Nexus's own types. Nothing outside this file
 // (and the Watchmode source that uses it) knows what a Watchmode response looks like.
 
-import type { Movie, Offer, OfferType, VideoQuality } from "@/domain/types";
+import { isPaidOfferType, type Movie, type Offer, type OfferType, type VideoQuality } from "@/domain/types";
 
 /** One entry of `title_results` from GET /search/. */
 export interface WatchmodeSearchResult {
@@ -111,7 +111,7 @@ export function toOffer(source: WatchmodeSource): Offer | null {
     return null;
   }
 
-  const paid = type === "rent" || type === "buy";
+  const paid = isPaidOfferType(type);
   if (paid && source.price === null) {
     return null;
   }

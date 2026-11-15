@@ -5,7 +5,6 @@ import { createMockDataSource } from "./mock";
 import type { DataSource } from "./types";
 import { createWatchmodeDataSource } from "./watchmode-source";
 
-export { DataSourceError } from "./types";
 export type { DataSource, SourceResult } from "./types";
 
 let mock: DataSource | undefined;

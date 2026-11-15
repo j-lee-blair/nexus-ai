@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ERROR_STATUS, type ApiFailure, type ApiSuccess, type ErrorCode } from "@/contracts/api";
-import { DataSourceError, type SourceResult } from "@/server/data-source";
+import type { SourceResult } from "@/server/data-source";
+import { DataSourceError, PROVIDER_UNAVAILABLE_MESSAGE } from "@/server/errors";
 
 const NO_STORE = { "Cache-Control": "no-store" };
 
@@ -30,6 +31,6 @@ export async function respond<S, T>(load: () => Promise<SourceResult<S>>, shape:
       return failure(error.code, error.message, error.retryAfterSeconds);
     }
     console.error("Unexpected data source error", error);
-    return failure("provider_unavailable", "Movie data is unavailable right now. Try again soon.");
+    return failure("provider_unavailable", PROVIDER_UNAVAILABLE_MESSAGE);
   }
 }

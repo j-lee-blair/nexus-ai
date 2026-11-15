@@ -11,7 +11,7 @@ describe("cache", () => {
     const second = await cache.remember("key", 60, load);
 
     expect(first).toMatchObject({ value: "answer", cached: false });
-    expect(second).toMatchObject({ value: "answer", cached: true, storedAt: first.storedAt });
+    expect(second).toMatchObject({ value: "answer", cached: true, checkedAt: first.checkedAt });
     expect(load).toHaveBeenCalledTimes(1);
   });
 

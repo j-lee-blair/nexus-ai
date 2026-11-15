@@ -1,4 +1,4 @@
-import { DataSourceError } from "@/server/data-source/types";
+import { DataSourceError, PROVIDER_UNAVAILABLE_MESSAGE } from "@/server/errors";
 import type { CreditBudget } from "./credit-budget";
 import type { WatchmodeGateway, WatchmodeRequest } from "./types";
 
@@ -48,12 +48,12 @@ export function createLiveGateway(options: LiveGatewayOptions): WatchmodeGateway
           signal: AbortSignal.timeout(TIMEOUT_MS),
         });
       } catch {
-        throw new DataSourceError("provider_unavailable", "Movie data is unavailable right now. Try again soon.");
+        throw new DataSourceError("provider_unavailable", PROVIDER_UNAVAILABLE_MESSAGE);
       }
 
       if (!response.ok) {
         log("watchmode.error", { path: request.path, status: response.status });
-        throw new DataSourceError("provider_unavailable", "Movie data is unavailable right now. Try again soon.");
+        throw new DataSourceError("provider_unavailable", PROVIDER_UNAVAILABLE_MESSAGE);
       }
 
       const body = (await response.json()) as T;

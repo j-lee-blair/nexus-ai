@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { DataSourceError } from "@/server/data-source/types";
+import { DataSourceError } from "@/server/errors";
 import { fixtureFileName, type WatchmodeFixture } from "./fixtures";
 import type { WatchmodeGateway, WatchmodeRequest } from "./types";
 
