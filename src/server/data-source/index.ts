@@ -1,38 +1,48 @@
+import { createCache, type Cache } from "@/server/cache";
+import { getStore } from "@/server/store";
+import { getWatchmodeGateway } from "@/server/watchmode";
+import { limitPerVisitor } from "@/server/visitor-limit";
 import { createMockDataSource } from "./mock";
-import { DataSourceError, type DataSource } from "./types";
+import type { DataSource } from "./types";
+import { createWatchmodeDataSource } from "./watchmode-source";
 
-export { DataSourceError } from "./types";
 export type { DataSource, SourceResult } from "./types";
 
-/** Used until the Watchmode source exists (F1–F5): every lookup fails cleanly. */
-const notConnected: DataSource = {
-  async search() {
-    throw new DataSourceError("provider_unavailable", "Movie data isn't connected yet.");
-  },
-  async availability() {
-    throw new DataSourceError("provider_unavailable", "Movie data isn't connected yet.");
-  },
-};
-
 let mock: DataSource | undefined;
+// One cache per server instance, so identical requests in flight share a single provider call.
+let cache: Cache | undefined;
 
-/**
- * Picks the data source from NEXUS_DATA_SOURCE.
- * - "mock": made-up data for development. Refused on Vercel production so real users
- *   never see invented movies or prices.
- * - anything else: not connected yet.
- */
-export function getDataSource(env: NodeJS.ProcessEnv = process.env): DataSource {
-  const wantsMock = env.NEXUS_DATA_SOURCE === "mock";
-  const isProduction = env.VERCEL_ENV === "production";
-
-  if (!wantsMock || isProduction) {
-    return notConnected;
+function getCache(env: NodeJS.ProcessEnv): Cache {
+  if (cache === undefined) {
+    cache = createCache(getStore(env));
   }
+  return cache;
+}
 
+function getMockDataSource(env: NodeJS.ProcessEnv): DataSource {
   if (mock === undefined) {
     const latencyMs = Number(env.NEXUS_MOCK_LATENCY_MS ?? 700);
     mock = createMockDataSource({ latencyMs });
   }
   return mock;
+}
+
+/**
+ * Picks the data source for one visitor's request.
+ * - NEXUS_DATA_SOURCE=mock: made-up movies for UI work. Only in development and tests (never in
+ *   a production build, including Vercel previews), so nobody sees invented movies or prices.
+ * - Otherwise: Watchmode. Whether that means live calls or recorded fixtures is decided by the
+ *   Watchmode gateway's safety switches (ADR 0002), and each visitor's calls are limited per hour.
+ */
+export function getDataSource(visitorId: string, env: NodeJS.ProcessEnv = process.env): DataSource {
+  const wantsMock = env.NEXUS_DATA_SOURCE === "mock";
+  const isProductionBuild = env.NODE_ENV === "production";
+
+  if (wantsMock && !isProductionBuild) {
+    return getMockDataSource(env);
+  }
+
+  const gateway = getWatchmodeGateway(env);
+  const visitorGateway = limitPerVisitor(gateway, getStore(env), visitorId);
+  return createWatchmodeDataSource(visitorGateway, getCache(env));
 }

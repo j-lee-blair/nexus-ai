@@ -30,8 +30,9 @@ rewriting that adapter only.
 
 - Credit Watchmode on every screen that shows its data, with a link to watchmode.com (free plan).
 - Cached Watchmode data must be refreshed or deleted within 30 days (free plan).
-- App deep links are paid-only. Still to verify with one live call: whether the free plan returns
-  web links to the movie, and whether Swedish prices come back in SEK.
+- App deep links are paid-only. Verified with the recorded fixtures (2026-10-30): the free plan
+  does return `web_url` links straight to the movie on each service's website, and Swedish prices
+  come back as plain numbers in kronor (no currency field), so Nexus labels them SEK.
 - Usage limits are handled by [ADR 0002](0002-api-credit-safeguards.md).
 - Watchmode images are not licensed for our use, so posters come from TMDB
   ([ADR 0003](0003-posters-from-tmdb.md)).

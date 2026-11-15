@@ -38,6 +38,7 @@ speaks Nexus's own types.
 | F10 | **Visitor rate limit** | F0 error shape | About 20 fresh lookups per hour per visitor. Server middleware, independent of the services. | Exceeding it returns `rate_limited`. |
 | F11 | **Posters** | F0 (`tmdbId`) | TMDB poster lookup with its own key and cache. Optional: failure means no poster, never no answer. | Answer and results still render when TMDB fails. |
 | F12 | **Usage view** | F1 counter | A small protected page showing credits used today and this month. | Shows real counter values. |
+| F14 | **Split view for tablet and desktop** | F6, F7, F8 | From 768px wide, search and answer share one screen: the search column on the left, the answer for the picked movie on the right. Phones keep today's two screens. Built in three steps (below). | All three steps are merged and phones look and behave exactly as before. |
 | F13 | **Deploy and README** | everything | Public deployment, secrets in the host's settings, README on product, running locally and the agent-led workflow. | Anyone can use the public URL. |
 
 ## Order
@@ -49,8 +50,58 @@ speaks Nexus's own types.
    runs against the mock API until the services are ready.
 4. **F8** on top of F7, then **F9**.
 5. **F10, F11, F12** in any order; none of them blocks the core answer.
-6. **F13** last, plus a single live check to confirm web links and SEK prices from Watchmode
+6. **F14** split view, once F9 is merged (both change the search and answer screens).
+7. **F13** last, plus a single live check to confirm web links and SEK prices from Watchmode
    (ADR 0001).
+
+## F14: split view for tablet and desktop
+
+Chosen by the maintainer on 2026-11-01 from three desktop layouts (option A in
+[`design/converge-desktop.html`](design/converge-desktop.html)). From **768px wide** (iPad
+portrait and up) the search column stays on the left and the answer for the picked movie fills the
+right. Picking another result swaps the answer without going back. Below 768px nothing changes.
+
+**Why it helps the core question:** fewer clicks. Picking the wrong "The Matrix" costs one click to
+fix instead of Back and pick again, and a new search is always in view.
+
+Built in three small steps, each its own pull request that leaves the app working:
+
+| Step | What changes | Done when |
+|---|---|---|
+| **F14a: Split layout** | Search and answer render side by side from 768px: search column about 320px wide on tablets, 400px on desktop; the answer pane takes the rest. The movie keeps its own address (`/movie/:id?q=`), so links, Back and refresh still work. The search column keeps its results when a movie is picked, so it makes no new lookups. The picked result is highlighted; "Back to results" is hidden where the results are already visible. The empty pane says "Pick a movie to see where it streams in Sweden". | Tablet and desktop show both columns; phone screenshots are unchanged; no extra search calls when picking a movie. |
+| **F14b: Converge in the pane** | The nexus point moves from the centre of the screen to the centre of the answer pane, and the Ignite line spans the pane, not the whole screen. Streams still pour in from the screen edges. Picking another movie while a reveal plays stops it cleanly. | Discovery and Ignite play inside the pane; tap to skip and reduced motion still work. |
+| **F14c: Use the width** | From 1025px, offer rows sit in a two-column grid inside each group (Rent and Buy for a well-covered movie fit on a laptop screen), with a larger poster and title. Accessibility pass: after picking, focus moves to the movie title and the summary is announced once; keyboard path is type, Tab to a result, Enter, Tab to a service. | Keyboard and screen-reader walkthrough passes on tablet and desktop widths. |
+
+Doing it in one pull request is possible, but three steps fit the 1–2 hours of review a week, keep
+each change easy to check against phone behaviour, and let F14a ship on its own if time runs out.
+
+## F13: go public
+
+Agreed with the maintainer on 2026-11-15. Nexus goes online with live Watchmode data, for anyone,
+without signing up.
+
+**What it does:** the public URL answers "Where can I stream this?" for movies in Sweden from live
+Watchmode data, cached as in F3 and capped at 60 credits a day and 2,000 a month (ADR 0002).
+
+**What must keep working:** search, results, the answer grouped Included / Free / Rent / Buy with
+prices cheapest first, Discovery and Ignite (with tap to skip and reduced motion), every error
+screen from F9, the split view (F14), the credit caps and the kill switch.
+
+**Before going public**, four review findings are fixed, each in its own commit:
+
+| Step | What changes | Done when |
+|---|---|---|
+| **3a: Movie id** | The availability endpoint accepts digits only. Anything else gives `not_found` without calling Watchmode, and so does an id Watchmode doesn't know. | A path such as `..%2Fsearch` never reaches Watchmode; tests cover both cases. |
+| **3b: Visitor limits** | Searches have a maximum length, and F10 limits each visitor to about 20 fresh lookups an hour. | A too-long search gives `invalid_query`; the 21st fresh lookup in an hour gives `rate_limited`. |
+| **3c: Failing services** | Redis and Watchmode errors are caught, calls have timeouts, and a Watchmode body with an unexpected shape is an error, never cached as "no movies". | Tests with a failing store and a malformed body. |
+| **3d: Real data only** | Production never answers from made-up or recorded data. Without live calls it says "provider unavailable". Faker is a dev-only dependency. | A production test with live calls off returns `provider_unavailable`. |
+
+Then: an automatic CI check on GitHub (test, lint, typecheck, build) that must pass before merging
+to `main`; Vercel deploys `main` with secrets only in its Production settings (none with a
+`NEXT_PUBLIC_` prefix); a check of the live site; and a README for newcomers.
+
+**Known limitation:** titles come from Watchmode in English. Swedish titles need TMDB (F11) and are
+left for later.
 
 ## Rules that keep features independent
 

@@ -1,0 +1,97 @@
+import { groupOffers } from "@/domain/group-offers";
+import type { Availability, Movie } from "@/domain/types";
+import { AVAILABILITY_TTL_SECONDS, SEARCH_TTL_SECONDS, type Cache } from "@/server/cache";
+import { availabilityCacheKey, movieCacheKey, searchCacheKey } from "@/server/cache-keys";
+import { DataSourceError } from "@/server/errors";
+import type { WatchmodeGateway, WatchmodeRequest } from "@/server/watchmode";
+import type { DataSource } from "./types";
+import {
+  NEXUS_REGION,
+  toMovieFromDetails,
+  toMovies,
+  toOffers,
+  type WatchmodeSearchResponse,
+  type WatchmodeSource,
+  type WatchmodeTitleDetails,
+} from "./watchmode-mappers";
+
+// Movies seen in search results are remembered as long as searches, so opening a result never
+// needs an extra details call.
+const MOVIE_TTL_SECONDS = SEARCH_TTL_SECONDS;
+
+// Watchmode title ids are whole numbers. Checking this before any call keeps visitor input out of
+// the Watchmode URL path (so "../search" can never reach another endpoint) and spends no credits
+// on ids that cannot exist.
+const WATCHMODE_ID_PATTERN = /^[0-9]+$/;
+
+function checkMovieId(movieId: string) {
+  if (!WATCHMODE_ID_PATTERN.test(movieId)) {
+    throw new DataSourceError("not_found", "Not a Watchmode title id.");
+  }
+}
+
+function searchRequest(query: string): WatchmodeRequest {
+  return { path: "/search/", params: { search_field: "name", search_value: query }, credits: 1 };
+}
+
+function sourcesRequest(movieId: string): WatchmodeRequest {
+  return { path: `/title/${movieId}/sources/`, params: { regions: NEXUS_REGION }, credits: 1 };
+}
+
+function detailsRequest(movieId: string): WatchmodeRequest {
+  return { path: `/title/${movieId}/details/`, params: {}, credits: 1 };
+}
+
+/**
+ * Answers searches and availability from Watchmode (live or fixtures, decided by the gateway),
+ * through the cache. Costs per new movie: 1 credit per new search, 1 per availability lookup.
+ */
+export function createWatchmodeDataSource(gateway: WatchmodeGateway, cache: Cache): DataSource {
+  async function rememberMovies(movies: Movie[]) {
+    for (const movie of movies) {
+      await cache.remember(movieCacheKey(movie.id), MOVIE_TTL_SECONDS, async () => movie);
+    }
+  }
+
+  async function findMovie(movieId: string): Promise<Movie> {
+    const remembered = await cache.remember(movieCacheKey(movieId), MOVIE_TTL_SECONDS, async () => {
+      const details = await gateway.request<WatchmodeTitleDetails>(detailsRequest(movieId));
+      return toMovieFromDetails(details);
+    });
+    return remembered.value;
+  }
+
+  return {
+    async search(query) {
+      const key = searchCacheKey(query);
+
+      const remembered = await cache.remember(key, SEARCH_TTL_SECONDS, async () => {
+        const response = await gateway.request<WatchmodeSearchResponse>(searchRequest(query.trim()));
+        return toMovies(response);
+      });
+
+      if (!remembered.cached) {
+        await rememberMovies(remembered.value);
+      }
+      return { data: remembered.value, cached: remembered.cached, checkedAt: remembered.checkedAt };
+    },
+
+    async availability(movieId) {
+      checkMovieId(movieId);
+      const key = availabilityCacheKey(movieId);
+
+      const remembered = await cache.remember(key, AVAILABILITY_TTL_SECONDS, async () => {
+        const movie = await findMovie(movieId);
+        const sources = await gateway.request<WatchmodeSource[]>(sourcesRequest(movieId));
+        const availability: Availability = {
+          movie,
+          country: NEXUS_REGION,
+          groups: groupOffers(toOffers(sources)),
+        };
+        return availability;
+      });
+
+      return { data: remembered.value, cached: remembered.cached, checkedAt: remembered.checkedAt };
+    },
+  };
+}

@@ -1,0 +1,63 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 40px 16px 32px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.back {
+  align-self: flex-start;
+  padding: 6px 0;
+  font-size: 14px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.back:hover,
+.back:focus-visible {
+  color: var(--fg);
+  text-decoration: underline;
+}
+
+/* Wide split view: the answer uses more of its column, with room for two columns of offers. */
+@media (min-width: 1025px) {
+  .screen {
+    max-width: 920px;
+    padding: 48px 40px 40px;
+  }
+}
+
+/* Split view: the search column beside the answer has the wordmark and the results. */
+@media (min-width: 768px) {
+  .header {
+    display: none;
+  }
+}
+
+.region {
+  min-height: 200px;
+}
+
+.loading {
+  margin: 0;
+  padding: 24px 4px;
+  color: var(--muted);
+}
+
+
+.effects {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 10;
+}

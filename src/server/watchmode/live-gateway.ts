@@ -1,4 +1,4 @@
-import { DataSourceError } from "@/server/data-source/types";
+import { DataSourceError, PROVIDER_UNAVAILABLE_MESSAGE } from "@/server/errors";
 import type { CreditBudget } from "./credit-budget";
 import type { WatchmodeGateway, WatchmodeRequest } from "./types";
 
@@ -28,7 +28,14 @@ export function createLiveGateway(options: LiveGatewayOptions): WatchmodeGateway
 
   return {
     async request<T>(request: WatchmodeRequest): Promise<T> {
-      const reservation = await options.budget.reserve(request.credits);
+      // Without a working counter Nexus can't keep to its credit caps, so it makes no call.
+      let reservation: Awaited<ReturnType<CreditBudget["reserve"]>>;
+      try {
+        reservation = await options.budget.reserve(request.credits);
+      } catch (error) {
+        log("watchmode.budget_unavailable", { path: request.path, error: String(error) });
+        throw new DataSourceError("provider_unavailable", PROVIDER_UNAVAILABLE_MESSAGE);
+      }
 
       if (!reservation.allowed) {
         log("watchmode.refused", { path: request.path, credits: request.credits, ...reservation.usage });
@@ -48,16 +55,30 @@ export function createLiveGateway(options: LiveGatewayOptions): WatchmodeGateway
           signal: AbortSignal.timeout(TIMEOUT_MS),
         });
       } catch {
-        throw new DataSourceError("provider_unavailable", "Movie data is unavailable right now. Try again soon.");
+        throw new DataSourceError("provider_unavailable", PROVIDER_UNAVAILABLE_MESSAGE);
+      }
+
+      // Watchmode answers 404 for a title id it doesn't know: that is the visitor's "not found",
+      // not a provider failure.
+      if (response.status === 404) {
+        log("watchmode.not_found", { path: request.path });
+        throw new DataSourceError("not_found", "Watchmode doesn't know this title id.");
       }
 
       if (!response.ok) {
         log("watchmode.error", { path: request.path, status: response.status });
-        throw new DataSourceError("provider_unavailable", "Movie data is unavailable right now. Try again soon.");
+        throw new DataSourceError("provider_unavailable", PROVIDER_UNAVAILABLE_MESSAGE);
       }
 
-      const body = (await response.json()) as T;
-      return body;
+      let body: unknown;
+      try {
+        body = await response.json();
+      } catch {
+        log("watchmode.invalid_json", { path: request.path });
+        throw new DataSourceError("provider_unavailable", PROVIDER_UNAVAILABLE_MESSAGE);
+      }
+      // The mappers check the fields they use, so an unexpected shape fails there.
+      return body as T;
     },
   };
 }

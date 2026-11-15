@@ -120,6 +120,12 @@ ready.
 **Snap (cached answer): Ignite.** A gradient line flashes across the nexus point and the answer
 opens up and down from it in about 0.25s. It should feel like "Nexus has seen this before".
 
+**Wider screens: split view.** From 768px wide (tablet and up), search stays in a column on the
+left and the answer for the picked movie fills the right, so picking another result needs no Back.
+The nexus point is the centre of the answer pane. Phones keep separate search and answer screens.
+Chosen on 2026-11-01; prototype `docs/design/converge-desktop.html` (option A). Plan: F14 in
+`docs/features.md`.
+
 **Rules for every reveal.**
 - The answer is real HTML underneath; effects are an overlay. Screen readers get the answer
   immediately (`aria-busy` during the reveal, a polite live announcement after).
@@ -136,7 +142,8 @@ opens up and down from it in about 0.25s. It should feel like "Nexus has seen th
 - **"Free with ads" category:** Swedish services such as SVT Play offer movies for free. If the data
   provider distinguishes this, should it be a fourth group alongside Included / Rent / Buy?
   (The design prototypes assume yes, shown as a "Free" group.)
-- **Links:** Can we link directly to the movie on each service (deep links), or only to the service?
+- ~~**Links**~~ Decided: Watchmode's free plan gives web links straight to the movie on each
+  service's site; app deep links are paid-only, so the MVP uses web links (ADR 0001).
 - **App language:** Swedish, English, or both?
 - ~~**Platform**~~ Decided: web app ([ADR 0004](docs/adr/0004-nextjs-vercel-upstash.md)).
 
@@ -181,6 +188,11 @@ someone new to the project can follow it without unpacking dense expressions.
   union types with an explicit check (`if (!body.ok) throw …`) rather than `body.ok && body.data`.
 - **Descriptive names.** No abbreviations beyond well-known ones such as `id` and `url`.
 - **Comments explain why**, not what the next line does.
+- **More than one `useEffect` in a file? Consider a custom hook.** Move the effects, and the state
+  and functions they work with, into a hook named for what it does (e.g. `useAvailability`). The hook
+  returns only what the component needs (state, and functions such as `retry`). The component then
+  reads as layout, and the logic can be changed and tested in one place. `useLayoutEffect` counts
+  as a `useEffect` here.
 
 ## What AI agents must NOT do
 
