@@ -1,0 +1,30 @@
+# Runs the same checks as `npm test`, `lint`, `typecheck` and `build` on every pull request and
+# on pushes to develop and main. It needs no secrets: tests use recorded Watchmode answers and
+# test/block-network.ts stops any real network call.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
