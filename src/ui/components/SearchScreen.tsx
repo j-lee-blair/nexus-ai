@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useId, useState } from "react";
-import { MIN_QUERY_LENGTH } from "@/contracts/api";
+import { MAX_QUERY_LENGTH, MIN_QUERY_LENGTH } from "@/contracts/api";
 import type { Movie } from "@/domain/types";
 import { movieDetails } from "@/ui/format";
 import { useMovieSearch, type SearchState } from "@/ui/hooks/useMovieSearch";
@@ -58,6 +58,7 @@ export function SearchScreen({ initialQuery, selectedMovieId }: SearchScreenProp
           className={styles.input}
           type="search"
           value={query}
+          maxLength={MAX_QUERY_LENGTH}
           onChange={handleChange}
           placeholder="Search for a movie"
           autoComplete="off"
